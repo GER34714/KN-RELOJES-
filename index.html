@@ -26,6 +26,7 @@
 
 <!-- =====================================================
      OPEN GRAPH TAGS (para redes sociales)
+     AHORA USAMOS EL LOGO COMO IMAGEN OG
 ===================================================== -->
 
 <!-- Título que se mostrará -->
@@ -43,8 +44,8 @@
 <!-- Nombre del sitio -->
 <meta property="og:site_name" content="KN Luxury Watches">
 
-<!-- IMAGEN PRINCIPAL (¡PUEDES CAMBIARLA!) -->
-<meta property="og:image" content="https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=80">
+<!-- IMAGEN PRINCIPAL - AHORA USAMOS EL LOGO DE KN -->
+<meta property="og:image" content="https://iili.io/Ckog2lR.md.jpg">
 
 <!-- Ancho y alto de la imagen (recomendado 1200x630) -->
 <meta property="og:image:width" content="1200">
@@ -60,7 +61,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="KN Luxury Watches | Relojes de lujo">
 <meta name="twitter:description" content="Descubrí nuestra selección exclusiva de relojes de lujo. Piezas elegidas por su diseño, calidad y distinción.">
-<meta name="twitter:image" content="https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=80">
+<meta name="twitter:image" content="https://iili.io/Ckog2lR.md.jpg">
 
 <!-- =====================================================
      FUENTES Y ESTILOS
@@ -209,7 +210,7 @@ a{
 
 
 /* =====================================================
-   LOGO
+   LOGO - MÁS GRANDE EN PC Y MÓVIL
 ===================================================== */
 
 .logo{
@@ -224,9 +225,9 @@ a{
 
 .logo img{
 
-    width:80px;
+    width:120px; /* ANTES: 80px - AHORA MÁS GRANDE */
 
-    height:55px;
+    height:75px; /* ANTES: 55px - AHORA MÁS GRANDE */
 
     object-fit:contain;
 
@@ -412,15 +413,15 @@ a{
 }
 
 
-/* LOGO EN HERO */
+/* LOGO EN HERO - MÁS GRANDE */
 
 .hero-logo{
 
-    width:150px;
+    width:220px; /* ANTES: 150px - AHORA MÁS GRANDE */
 
     height:auto;
 
-    margin-bottom:35px;
+    margin-bottom:40px; /* ANTES: 35px - UN POCO MÁS DE ESPACIO */
 
     object-fit:contain;
 
@@ -428,9 +429,9 @@ a{
 
         drop-shadow(
 
-            0 0 15px
+            0 0 25px
 
-            rgba(199,166,107,.22)
+            rgba(199,166,107,.3)
 
         );
 
@@ -1396,9 +1397,9 @@ section{
 
 .footer-logo{
 
-    width:100px;
+    width:140px; /* ANTES: 100px - AHORA MÁS GRANDE */
 
-    height:65px;
+    height:85px; /* ANTES: 65px - AHORA MÁS GRANDE */
 
     object-fit:contain;
 
@@ -2204,7 +2205,7 @@ section{
 
 
 /* =====================================================
-   RESPONSIVE
+   RESPONSIVE - LOGO MÁS GRANDE EN MÓVIL TAMBIÉN
 ===================================================== */
 
 @media(max-width:1000px){
@@ -2300,11 +2301,12 @@ section{
 
     }
 
+    /* LOGO EN HEADER - MÁS GRANDE EN MÓVIL */
     .logo img{
 
-        width:65px;
+        width:80px; /* ANTES: 65px - AHORA MÁS GRANDE */
 
-        height:48px;
+        height:60px; /* ANTES: 48px - AHORA MÁS GRANDE */
 
     }
 
@@ -2314,11 +2316,12 @@ section{
 
     }
 
+    /* LOGO EN HERO - MÁS GRANDE EN MÓVIL */
     .hero-logo{
 
-        width:120px;
+        width:160px; /* ANTES: 120px - AHORA MÁS GRANDE */
 
-        margin-bottom:28px;
+        margin-bottom:30px;
 
     }
 
@@ -2421,6 +2424,15 @@ section{
     .footer-grid{
 
         grid-template-columns:1fr;
+
+    }
+
+    /* LOGO EN FOOTER - MÁS GRANDE EN MÓVIL */
+    .footer-logo{
+
+        width:110px; /* ANTES: 100px - AHORA MÁS GRANDE */
+
+        height:70px; /* ANTES: 65px - AHORA MÁS GRANDE */
 
     }
 
@@ -4354,7 +4366,7 @@ floatingButtons.classList.remove("hidden");
 
 
 /* =====================================================
-   WHATSAPP CARRITO - MENSAJE CON PRODUCTOS SELECCIONADOS
+   WHATSAPP CARRITO - MENSAJE PROFESIONAL
 ===================================================== */
 
 document
@@ -4376,28 +4388,27 @@ return;
 }
 
 
-let message =
-"Hola KN, quiero consultar por esta selección de relojes:%0A%0A";
+// Mensaje profesional sin símbolos extraños
+let message = "Hola KN, quiero consultar por esta selección de relojes:\n\n";
 
 
-cart.forEach(item => {
+cart.forEach((item, index) => {
 
 const product =
 products.find(
 product => product.id === item.id
 );
 
+const priceFormatted = formatPrice(product.price);
 
-message +=
-
-`- ${product.name} x${item.quantity} - ${formatPrice(product.price)}%0A`;
+// Usamos guión (-) y espacio, sin símbolos raros
+message += `- ${product.name} (${item.quantity} unidad${item.quantity > 1 ? 'es' : ''}) - ${priceFormatted}\n`;
 
 });
 
 
-message +=
-
-"%0AQuisiera consultar disponibilidad y precio.";
+// Agregamos un salto de línea y la pregunta final de manera limpia
+message += "\n¿Podrían confirmarme disponibilidad y precio final?";
 
 
 openWhatsApp(message);
@@ -4774,9 +4785,9 @@ document
 product.water;
 
 
-// Mensaje personalizado para este producto específico
+// Mensaje profesional para este producto específico
 const productMessage =
-`Hola KN, estoy interesado en el reloj ${product.name} (${formatPrice(product.price)}). Quisiera consultar disponibilidad y precio.`;
+`Hola KN, estoy interesado en el reloj ${product.name} (${formatPrice(product.price)}). ¿Podrían confirmarme disponibilidad y precio?`;
 
 
 document
