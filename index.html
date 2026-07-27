@@ -1389,7 +1389,7 @@ section{
         height:60px;
     }
     
-    /* HERO - MÓVIL: BOTONES CENTRADOS ABAJO */
+    /* HERO - MÓVIL: IMAGEN UN POCO MÁS CHICA Y BOTONES CENTRADOS */
     .hero{
         align-items:flex-end;
         justify-content:center;
@@ -1398,15 +1398,17 @@ section{
         linear-gradient(
             to top,
             rgba(5,5,5,.92) 0%,
-            rgba(5,5,5,.50) 50%,
-            rgba(5,5,5,.20) 100%
+            rgba(5,5,5,.55) 50%,
+            rgba(5,5,5,.25) 100%
         ),
         url("https://wrgvhnlhpkvendjhbtpm.supabase.co/storage/v1/object/public/imagenes%20kn%20relojes/WhatsApp%20Image%202026-07-27%20at%2012.00.57%20AM%20(1).jpeg")
-        center/cover;
+        center 30% / 95% auto no-repeat;
+        background-size: 95% auto;
+        background-position: center 20%;
     }
     
     .hero-content{
-        padding:145px 6% 30px;
+        padding:170px 6% 30px;
         display:flex;
         flex-direction:column;
         align-items:center;
@@ -1419,6 +1421,7 @@ section{
         max-width:100%;
         margin:0 0 30px 0;
         text-align:center;
+        font-size:13px;
     }
     
     .buttons{
@@ -1431,12 +1434,19 @@ section{
         flex:1;
         min-width:200px;
         justify-content:center;
+        padding:15px 24px;
+        font-size:9px;
     }
     
     .hero-bottom{
         left:6%;
         right:6%;
         bottom:20px;
+        font-size:8px;
+    }
+    
+    .scroll-line{
+        width:35px;
     }
     
     section{
