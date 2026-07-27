@@ -10,6 +10,62 @@
 
 <meta name="description" content="KN Luxury Watches. Descubrí nuestra selección exclusiva de relojes.">
 
+<!-- =====================================================
+     GOOGLE ANALYTICS (GTAG)
+===================================================== -->
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XBKMPYDQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-W8XBKMPYDQ');
+</script>
+
+<!-- =====================================================
+     OPEN GRAPH TAGS (para redes sociales)
+===================================================== -->
+
+<!-- Título que se mostrará -->
+<meta property="og:title" content="KN Luxury Watches | Relojes de lujo">
+
+<!-- Descripción que se mostrará -->
+<meta property="og:description" content="Descubrí nuestra selección exclusiva de relojes de lujo. Piezas elegidas por su diseño, calidad y distinción.">
+
+<!-- URL de la página (¡CAMBIALA POR LA TUYA!) -->
+<meta property="og:url" content="https://tudominio.com">
+
+<!-- Tipo de contenido -->
+<meta property="og:type" content="website">
+
+<!-- Nombre del sitio -->
+<meta property="og:site_name" content="KN Luxury Watches">
+
+<!-- IMAGEN PRINCIPAL (¡PUEDES CAMBIARLA!) -->
+<meta property="og:image" content="https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=80">
+
+<!-- Ancho y alto de la imagen (recomendado 1200x630) -->
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Tipo de imagen -->
+<meta property="og:image:type" content="image/jpeg">
+
+<!-- =====================================================
+     TWITTER CARDS (para X/Twitter)
+===================================================== -->
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="KN Luxury Watches | Relojes de lujo">
+<meta name="twitter:description" content="Descubrí nuestra selección exclusiva de relojes de lujo. Piezas elegidas por su diseño, calidad y distinción.">
+<meta name="twitter:image" content="https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=80">
+
+<!-- =====================================================
+     FUENTES Y ESTILOS
+===================================================== -->
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -275,6 +331,11 @@ a{
 
     display:none;
 
+}
+
+/* Eliminamos el botón de favoritos del header */
+.nav-action.favorite-hidden {
+    display: none;
 }
 
 
@@ -884,43 +945,6 @@ section{
 
 }
 
-.favorite-button{
-
-    position:absolute;
-
-    z-index:3;
-
-    top:15px;
-
-    right:15px;
-
-    width:38px;
-
-    height:38px;
-
-    border:1px solid rgba(255,255,255,.2);
-
-    border-radius:50%;
-
-    background:rgba(0,0,0,.3);
-
-    color:#ddd;
-
-    font-size:18px;
-
-    transition:.3s;
-
-}
-
-.favorite-button:hover,
-.favorite-button.active{
-
-    color:var(--gold-light);
-
-    border-color:var(--gold);
-
-}
-
 .product-info{
 
     padding:25px;
@@ -982,9 +1006,16 @@ section{
 .product-price{
 
     color:var(--gold-light);
+    font-size:14px;
+    font-weight:500;
+    letter-spacing:0.5px;
 
-    font-size:12px;
+}
 
+.product-price .price-currency{
+    font-size:10px;
+    color:var(--gold);
+    margin-right:2px;
 }
 
 .product-view{
@@ -1167,7 +1198,7 @@ section{
 
 
 /* =====================================================
-   STORY
+   STORY (con imagen de reloj de fondo)
 ===================================================== */
 
 .story{
@@ -1178,15 +1209,17 @@ section{
 
     linear-gradient(
 
-        rgba(7,7,7,.83),
+        rgba(7,7,7,.75),
 
-        rgba(7,7,7,.94)
+        rgba(7,7,7,.92)
 
     ),
 
-    url("https://images.unsplash.com/photo-1518544801976-3e159e50e5bb?auto=format&fit=crop&w=2200&q=90")
+    url("https://images.unsplash.com/photo-1533134486753-c833f0ed4866?auto=format&fit=crop&w=2200&q=90")
 
     center/cover fixed;
+
+    padding:180px 6%;
 
 }
 
@@ -1511,10 +1544,10 @@ section{
 
 
 /* =====================================================
-   WHATSAPP
+   BOTONES FLOTANTES (WhatsApp + Carrito)
 ===================================================== */
 
-.whatsapp{
+.floating-buttons{
 
     position:fixed;
 
@@ -1523,6 +1556,19 @@ section{
     right:25px;
 
     bottom:25px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    align-items:center;
+
+}
+
+/* WhatsApp */
+.whatsapp{
 
     width:56px;
 
@@ -1551,6 +1597,94 @@ section{
 .whatsapp:hover{
 
     transform:scale(1.1);
+
+}
+
+/* Carrito flotante */
+.cart-floating{
+
+    width:56px;
+
+    height:56px;
+
+    display:none; /* Oculto por defecto */
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:var(--gold);
+
+    color:#111;
+
+    font-size:22px;
+
+    box-shadow:0 5px 25px rgba(0,0,0,.5);
+
+    transition:.3s;
+
+    border:0;
+
+    position:relative;
+
+    cursor:pointer;
+
+}
+
+.cart-floating.visible{
+
+    display:flex; /* Visible cuando hay productos */
+
+}
+
+.cart-floating:hover{
+
+    transform:scale(1.1);
+
+    background:var(--gold-light);
+
+}
+
+.cart-floating .badge-count{
+
+    position:absolute;
+
+    top:-5px;
+
+    right:-5px;
+
+    width:22px;
+
+    height:22px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:#e74c3c;
+
+    color:white;
+
+    font-size:10px;
+
+    font-weight:600;
+
+}
+
+/* Ocultar botones al llegar al footer */
+.floating-buttons.hidden{
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:opacity .4s ease;
 
 }
 
@@ -1716,6 +1850,15 @@ section{
     color:#888;
 
     font-size:11px;
+
+}
+
+.cart-item .cart-item-price{
+
+    color:var(--gold-light);
+    font-size:12px;
+    font-weight:500;
+    margin-top:4px;
 
 }
 
@@ -1948,6 +2091,20 @@ section{
 
     line-height:1.8;
 
+}
+
+.modal-price{
+    color:var(--gold-light);
+    font-size:24px;
+    font-weight:500;
+    margin-bottom:25px;
+    letter-spacing:1px;
+}
+
+.modal-price .price-currency{
+    font-size:14px;
+    color:var(--gold);
+    margin-right:4px;
 }
 
 .specifications{
@@ -2297,6 +2454,32 @@ section{
 
     }
 
+    /* Ajuste para móviles */
+    .floating-buttons{
+
+        right:15px;
+
+        bottom:15px;
+
+        gap:10px;
+
+    }
+
+    .whatsapp,
+    .cart-floating{
+
+        width:48px;
+
+        height:48px;
+
+        font-size:20px;
+
+    }
+
+    .modal-price{
+        font-size:20px;
+    }
+
 }
 
 </style>
@@ -2356,24 +2539,6 @@ id="searchButton"
 aria-label="Buscar">
 
 <i class="fa-solid fa-magnifying-glass"></i>
-
-</button>
-
-
-<button
-class="nav-action"
-id="favoriteButton"
-aria-label="Favoritos">
-
-<i class="fa-regular fa-heart"></i>
-
-<span
-class="badge-count"
-id="favoritesCount">
-
-0
-
-</span>
 
 </button>
 
@@ -2912,7 +3077,7 @@ La confianza detrás de cada pieza que forma parte de nuestra colección.
 
 
 <!-- =====================================================
-     HISTORIA
+     HISTORIA (con imagen de reloj de fondo)
 ===================================================== -->
 
 <section
@@ -3076,7 +3241,8 @@ Explorá nuestra colección y consultanos personalmente por el modelo que más t
 </p>
 
 <a
-href="https://wa.me/5491100000000?text=Hola%20KN,%20quiero%20consultar%20por%20un%20reloj."
+href="#"
+id="ctaWhatsapp"
 target="_blank"
 class="btn btn-primary">
 
@@ -3151,7 +3317,10 @@ Atención
 Contacto
 </a>
 
-<a href="https://wa.me/5491100000000" target="_blank">
+<a
+href="#"
+id="footerWhatsapp"
+target="_blank">
 WhatsApp
 </a>
 
@@ -3185,7 +3354,8 @@ aria-label="Instagram">
 
 
 <a
-href="https://wa.me/5491100000000"
+href="#"
+id="socialWhatsapp"
 target="_blank"
 aria-label="WhatsApp">
 
@@ -3230,12 +3400,16 @@ CIBORG 347
 
 
 <!-- =====================================================
-     WHATSAPP FLOTANTE
+     BOTONES FLOTANTES (WhatsApp + Carrito)
 ===================================================== -->
 
+<div class="floating-buttons" id="floatingButtons">
+
+<!-- WhatsApp -->
 <a
 class="whatsapp"
-href="https://wa.me/5491100000000"
+href="#"
+id="floatingWhatsapp"
 target="_blank"
 aria-label="WhatsApp">
 
@@ -3243,9 +3417,23 @@ aria-label="WhatsApp">
 
 </a>
 
+<!-- Carrito flotante -->
+<button
+class="cart-floating"
+id="cartFloating"
+aria-label="Abrir carrito">
+
+<i class="fa-solid fa-bag-shopping"></i>
+
+<span class="badge-count" id="cartFloatingCount">0</span>
+
+</button>
+
+</div>
+
 
 <!-- =====================================================
-     CARRITO
+     CARRITO (Drawer)
 ===================================================== -->
 
 <div
@@ -3370,6 +3558,13 @@ id="modalDescription">
 </p>
 
 
+<div
+class="modal-price"
+id="modalPrice">
+
+</div>
+
+
 <div class="specifications">
 
 
@@ -3468,11 +3663,34 @@ Consultar disponibilidad
    CONFIGURACIÓN
 ===================================================== */
 
-const WHATSAPP_NUMBER = "5491100000000";
+// NÚMERO DE WHATSAPP
+const WHATSAPP_NUMBER = "5491137675875";
+
+// MENSAJE POR DEFECTO PARA CONSULTAS GENERALES
+const DEFAULT_WHATSAPP_MESSAGE = "Hola KN, quiero consultar por un reloj.";
+
+// FUNCIÓN PARA ABRIR WHATSAPP CON MENSAJE PERSONALIZADO
+function openWhatsApp(message) {
+    const encodedMessage = encodeURIComponent(message);
+    window.open(
+        `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`,
+        "_blank"
+    );
+}
+
+// FUNCIÓN PARA FORMATEAR PRECIO EN PESOS ARGENTINOS
+function formatPrice(price) {
+    return new Intl.NumberFormat('es-AR', {
+        style: 'currency',
+        currency: 'ARS',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(price);
+}
 
 
 /* =====================================================
-   PRODUCTOS
+   PRODUCTOS CON PRECIOS EN PESOS ARGENTINOS
 ===================================================== */
 
 const products = [
@@ -3488,6 +3706,8 @@ category:"Clásicos",
 description:"Una pieza de líneas atemporales y elegancia discreta.",
 
 image:"https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=1200&q=90",
+
+price:1250000,
 
 movement:"Automático",
 
@@ -3511,6 +3731,8 @@ description:"Diseño contemporáneo con un movimiento de alta precisión.",
 
 image:"https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=1200&q=90",
 
+price:1580000,
+
 movement:"Automático",
 
 material:"Acero y cristal zafiro",
@@ -3532,6 +3754,8 @@ category:"Deportivos",
 description:"Potencia, precisión y carácter para acompañar cada desafío.",
 
 image:"https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=90",
+
+price:1890000,
 
 movement:"Cronógrafo",
 
@@ -3555,6 +3779,8 @@ description:"Una edición especial creada para quienes buscan algo diferente.",
 
 image:"https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&w=1200&q=90",
 
+price:2350000,
+
 movement:"Automático",
 
 material:"Acero y oro",
@@ -3576,6 +3802,8 @@ category:"Clásicos",
 description:"Inspirado en la tradición de la alta relojería.",
 
 image:"https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=1200&q=90",
+
+price:980000,
 
 movement:"Automático",
 
@@ -3599,6 +3827,8 @@ description:"Minimalismo, misterio y una presencia imposible de ignorar.",
 
 image:"https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=1200&q=90",
 
+price:2100000,
+
 movement:"Automático",
 
 material:"Titanio",
@@ -3617,13 +3847,6 @@ water:"100 metros"
 ===================================================== */
 
 let currentFilter = "Todos";
-
-let favorites = JSON.parse(
-
-localStorage.getItem("knFavorites")
-
-) || [];
-
 
 let cart = JSON.parse(
 
@@ -3645,9 +3868,6 @@ document.getElementById("productsGrid");
 const searchInput =
 document.getElementById("searchInput");
 
-const favoritesCount =
-document.getElementById("favoritesCount");
-
 const cartCount =
 document.getElementById("cartCount");
 
@@ -3666,45 +3886,47 @@ document.getElementById("cartTotalItems");
 const productModal =
 document.getElementById("productModal");
 
+// Nuevos elementos para botones flotantes
+const floatingButtons =
+document.getElementById("floatingButtons");
+
+const cartFloating =
+document.getElementById("cartFloating");
+
+const cartFloatingCount =
+document.getElementById("cartFloatingCount");
+
+const footer =
+document.querySelector(".footer");
+
 
 /* =====================================================
-   FAVORITOS
+   CONFIGURAR BOTONES DE WHATSAPP CON MENSAJE PERSONALIZADO
 ===================================================== */
 
-function updateFavoritesCount(){
+// Botón CTA del hero
+document.getElementById("ctaWhatsapp").addEventListener("click", function(e) {
+    e.preventDefault();
+    openWhatsApp(DEFAULT_WHATSAPP_MESSAGE);
+});
 
-favoritesCount.textContent =
-favorites.length;
+// Botón WhatsApp del footer
+document.getElementById("footerWhatsapp").addEventListener("click", function(e) {
+    e.preventDefault();
+    openWhatsApp(DEFAULT_WHATSAPP_MESSAGE);
+});
 
-}
+// Botón WhatsApp en redes sociales del footer
+document.getElementById("socialWhatsapp").addEventListener("click", function(e) {
+    e.preventDefault();
+    openWhatsApp(DEFAULT_WHATSAPP_MESSAGE);
+});
 
-
-function toggleFavorite(id){
-
-if(favorites.includes(id)){
-
-favorites =
-favorites.filter(
-item => item !== id
-);
-
-}else{
-
-favorites.push(id);
-
-}
-
-localStorage.setItem(
-
-"knFavorites",
-
-JSON.stringify(favorites)
-
-);
-
-renderProducts();
-
-}
+// Botón WhatsApp flotante
+document.getElementById("floatingWhatsapp").addEventListener("click", function(e) {
+    e.preventDefault();
+    openWhatsApp(DEFAULT_WHATSAPP_MESSAGE);
+});
 
 
 /* =====================================================
@@ -3742,11 +3964,31 @@ function updateCartCount(){
 const total =
 getCartTotal();
 
+// Actualizar contador en el header
 cartCount.textContent =
 total;
 
+// Actualizar contador en el drawer
 cartTotalItems.textContent =
 total;
+
+// Actualizar contador del botón flotante
+cartFloatingCount.textContent =
+total;
+
+// Mostrar/ocultar botón flotante según cantidad
+if(total > 0){
+
+cartFloating.classList.add("visible");
+
+}else{
+
+cartFloating.classList.remove("visible");
+
+}
+
+// Verificar si estamos en el footer para ocultar
+checkFooterVisibility();
 
 }
 
@@ -3937,6 +4179,9 @@ ${product.name}
 ${product.category}
 </p>
 
+<div class="cart-item-price">
+${formatPrice(product.price)}
+</div>
 
 <div class="quantity-controls">
 
@@ -4083,7 +4328,33 @@ cartOverlay.classList.remove("active");
 
 
 /* =====================================================
-   WHATSAPP CARRITO
+   CONTROL DE VISIBILIDAD DEL BOTÓN FLOTANTE
+===================================================== */
+
+function checkFooterVisibility(){
+
+const footerRect =
+footer.getBoundingClientRect();
+
+const windowHeight =
+window.innerHeight;
+
+// Si el footer está visible en pantalla, ocultar botones
+if(footerRect.top < windowHeight){
+
+floatingButtons.classList.add("hidden");
+
+}else{
+
+floatingButtons.classList.remove("hidden");
+
+}
+
+}
+
+
+/* =====================================================
+   WHATSAPP CARRITO - MENSAJE CON PRODUCTOS SELECCIONADOS
 ===================================================== */
 
 document
@@ -4119,7 +4390,7 @@ product => product.id === item.id
 
 message +=
 
-`- ${product.name} x${item.quantity}%0A`;
+`- ${product.name} x${item.quantity} - ${formatPrice(product.price)}%0A`;
 
 });
 
@@ -4129,13 +4400,7 @@ message +=
 "%0AQuisiera consultar disponibilidad y precio.";
 
 
-window.open(
-
-`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`,
-
-"_blank"
-
-);
+openWhatsApp(message);
 
 }
 
@@ -4206,10 +4471,6 @@ return;
 
 filtered.forEach(product => {
 
-const isFavorite =
-favorites.includes(product.id);
-
-
 const card =
 document.createElement("article");
 
@@ -4227,19 +4488,6 @@ card.innerHTML = `
 ${product.category}
 
 </span>
-
-
-<button
-
-class="favorite-button
-${isFavorite ? "active" : ""}"
-
-data-favorite="${product.id}">
-
-${isFavorite ? "♥" : "♡"}
-
-</button>
-
 
 <img
 
@@ -4277,7 +4525,7 @@ ${product.description}
 
 <span class="product-price">
 
-Consultar precio
+<span class="price-currency">$</span> ${formatPrice(product.price)}
 
 </span>
 
@@ -4318,14 +4566,6 @@ if(
 
 event.target.closest(
 
-"[data-favorite]"
-
-)
-
-||
-
-event.target.closest(
-
 "[data-cart]"
 
 )
@@ -4338,23 +4578,6 @@ return;
 
 
 openModal(product);
-
-}
-
-);
-
-
-card
-.querySelector("[data-favorite]")
-.addEventListener(
-
-"click",
-
-event => {
-
-event.stopPropagation();
-
-toggleFavorite(product.id);
 
 }
 
@@ -4381,9 +4604,6 @@ addToCart(product.id);
 productsGrid.appendChild(card);
 
 });
-
-
-updateFavoritesCount();
 
 }
 
@@ -4491,7 +4711,7 @@ renderProducts
 
 
 /* =====================================================
-   MODAL
+   MODAL - MENSAJE PERSONALIZADO POR PRODUCTO
 ===================================================== */
 
 function openModal(product){
@@ -4525,6 +4745,12 @@ product.description;
 
 
 document
+.getElementById("modalPrice")
+.innerHTML =
+`<span class="price-currency">$</span> ${formatPrice(product.price)}`;
+
+
+document
 .getElementById("modalMovement")
 .textContent =
 product.movement;
@@ -4548,16 +4774,17 @@ document
 product.water;
 
 
-const message =
-
-`Hola KN, estoy interesado en el reloj ${product.name}. Quisiera consultar disponibilidad y precio.`;
+// Mensaje personalizado para este producto específico
+const productMessage =
+`Hola KN, estoy interesado en el reloj ${product.name} (${formatPrice(product.price)}). Quisiera consultar disponibilidad y precio.`;
 
 
 document
 .getElementById("modalWhatsapp")
-.href =
-
-`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+.addEventListener("click", function(e) {
+    e.preventDefault();
+    openWhatsApp(productMessage);
+});
 
 
 productModal.classList.add("active");
@@ -4653,6 +4880,9 @@ window.scrollY > 50
 
 );
 
+// Verificar visibilidad del footer al hacer scroll
+checkFooterVisibility();
+
 }
 
 );
@@ -4736,34 +4966,10 @@ setTimeout(
 
 
 /* =====================================================
-   HEADER FAVORITOS
+   CARRITO (Header y Flotante)
 ===================================================== */
 
-document
-.getElementById("favoriteButton")
-.addEventListener(
-
-"click",
-
-() => {
-
-document
-.getElementById("coleccion")
-.scrollIntoView({
-
-behavior:"smooth"
-
-});
-
-}
-
-);
-
-
-/* =====================================================
-   CARRITO
-===================================================== */
-
+// Botón del header
 document
 .getElementById("cartButton")
 .addEventListener(
@@ -4774,7 +4980,16 @@ openCart
 
 );
 
+// Botón flotante
+cartFloating.addEventListener(
 
+"click",
+
+openCart
+
+);
+
+// Cerrar carrito
 document
 .getElementById("closeCart")
 .addEventListener(
@@ -4785,7 +5000,7 @@ closeCart
 
 );
 
-
+// Cerrar con overlay
 cartOverlay.addEventListener(
 
 "click",
@@ -4813,9 +5028,7 @@ closeCart();
 
 }
 
-}
-
-);
+});
 
 
 /* =====================================================
@@ -4828,7 +5041,11 @@ renderCart();
 
 updateCartCount();
 
-updateFavoritesCount();
+// Verificar visibilidad inicial
+setTimeout(checkFooterVisibility, 100);
+
+// También verificar al redimensionar
+window.addEventListener("resize", checkFooterVisibility);
 
 </script>
 
