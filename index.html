@@ -920,6 +920,7 @@ section{
     justify-content:space-between;
     align-items:center;
     gap:20px;
+    flex-wrap:wrap;
 }
 
 .ciborg-credit{
@@ -934,6 +935,22 @@ section{
 
 .ciborg-credit a:hover{
     color:white;
+}
+
+.admin-link{
+    color:#444;
+    font-size:10px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    transition:.3s;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+}
+
+.admin-link:hover{
+    color:var(--gold-light);
 }
 
 
@@ -2394,12 +2411,24 @@ aria-label="WhatsApp">
 
 <div class="copyright">
 
+<span style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+
 <span>
-
 © 2026 KN LUXURY WATCHES. Todos los derechos reservados.
-
 </span>
 
+<span style="color:#333;">|</span>
+
+<a
+href="admin.html"
+target="_blank"
+class="admin-link">
+
+🔐 Panel Admin
+
+</a>
+
+</span>
 
 <span class="ciborg-credit">
 
