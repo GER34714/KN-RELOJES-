@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <style>
-        /* ===== TU CSS AQUÍ (todo el CSS que ya tenías) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --black: #070707;
@@ -199,7 +198,7 @@
 
     <div id="modalContainer"></div>
 
-    <!-- CARGO SUPABASE DESDE CDN -->
+    <!-- CARGO SUPABASE UNA SOLA VEZ -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
     </script>
     
@@ -210,8 +209,14 @@
         const SUPABASE_URL = 'https://wrgvhnlhpkvendjhbtpm.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyZ3ZobmxocGt2ZW5kamhidHBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxNzc4NTUsImV4cCI6MjEwMDc1Mzg1NX0.0lPt4xYWr4E3gWDm4K3z8igJXui1me_j-iKZo47KkcU';
 
-        // Crear cliente de Supabase
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Verificar si supabase ya existe, si no, crearlo
+        let supabase;
+        if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } else {
+            // Si no está cargado, esperar a que cargue
+            console.error('Supabase no está cargado correctamente');
+        }
 
         // ============================================
         // VARIABLES GLOBALES
@@ -227,6 +232,9 @@
         // ============================================
         async function loginAdmin(email, password) {
             try {
+                if (!supabase) {
+                    throw new Error('Supabase no está inicializado');
+                }
                 const { data, error } = await supabase.auth.signInWithPassword({ email, password });
                 if (error) throw error;
                 currentUser = data.user;
@@ -243,6 +251,7 @@
         }
 
         async function logoutAdmin() {
+            if (!supabase) return;
             await supabase.auth.signOut();
             currentUser = null;
             document.getElementById('adminLogin').style.display = 'flex';
@@ -254,6 +263,7 @@
         // ============================================
         async function loadProducts() {
             try {
+                if (!supabase) throw new Error('Supabase no inicializado');
                 const { data, error } = await supabase.from('products').select('*').order('id', { ascending: false });
                 if (error) throw error;
                 products = data || [];
@@ -273,6 +283,7 @@
 
         async function createProduct(data) {
             try {
+                if (!supabase) throw new Error('Supabase no inicializado');
                 const { error } = await supabase.from('products').insert([data]);
                 if (error) throw error;
                 await loadProducts();
@@ -284,6 +295,7 @@
 
         async function updateProduct(id, data) {
             try {
+                if (!supabase) throw new Error('Supabase no inicializado');
                 const { error } = await supabase.from('products').update(data).eq('id', id);
                 if (error) throw error;
                 await loadProducts();
@@ -296,6 +308,7 @@
         async function deleteProduct(id) {
             if (!confirm('¿Eliminar este producto?')) return;
             try {
+                if (!supabase) throw new Error('Supabase no inicializado');
                 const { error } = await supabase.from('products').delete().eq('id', id);
                 if (error) throw error;
                 await loadProducts();
@@ -309,6 +322,7 @@
         // ============================================
         async function loadCategories() {
             try {
+                if (!supabase) throw new Error('Supabase no inicializado');
                 const { data, error } = await supabase.from('categories').select('*').order('name');
                 if (error) throw error;
                 categories = data || [];
@@ -327,6 +341,7 @@
 
         async function createCategory(data) {
             try {
+                if (!supabase) throw new Error('Supabase no inicializado');
                 const { error } = await supabase.from('categories').insert([data]);
                 if (error) throw error;
                 await loadCategories();
@@ -338,6 +353,7 @@
 
         async function updateCategory(id, data) {
             try {
+                if (!supabase) throw new Error('Supabase no inicializado');
                 const { error } = await supabase.from('categories').update(data).eq('id', id);
                 if (error) throw error;
                 await loadCategories();
@@ -350,6 +366,7 @@
         async function deleteCategory(id) {
             if (!confirm('¿Eliminar esta categoría?')) return;
             try {
+                if (!supabase) throw new Error('Supabase no inicializado');
                 const { error } = await supabase.from('categories').delete().eq('id', id);
                 if (error) throw error;
                 await loadCategories();
@@ -363,6 +380,7 @@
         // ============================================
         async function loadOrders() {
             try {
+                if (!supabase) throw new Error('Supabase no inicializado');
                 const { data, error } = await supabase.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
                 if (error) throw error;
                 orders = data || [];
@@ -381,6 +399,7 @@
 
         async function updateOrderStatus(id, status) {
             try {
+                if (!supabase) throw new Error('Supabase no inicializado');
                 const { error } = await supabase.from('orders').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
                 if (error) throw error;
                 await loadOrders();
@@ -394,6 +413,7 @@
         // ============================================
         async function loadTestimonials() {
             try {
+                if (!supabase) throw new Error('Supabase no inicializado');
                 const { data, error } = await supabase.from('testimonials').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
                 testimonials = data || [];
@@ -412,6 +432,7 @@
 
         async function createTestimonial(data) {
             try {
+                if (!supabase) throw new Error('Supabase no inicializado');
                 const { error } = await supabase.from('testimonials').insert([data]);
                 if (error) throw error;
                 await loadTestimonials();
@@ -425,6 +446,7 @@
             const item = testimonials.find(t => t.id === id);
             if (!item) return;
             try {
+                if (!supabase) throw new Error('Supabase no inicializado');
                 const { error } = await supabase.from('testimonials').update({ is_active: !item.is_active }).eq('id', id);
                 if (error) throw error;
                 await loadTestimonials();
@@ -436,6 +458,7 @@
         async function deleteTestimonial(id) {
             if (!confirm('¿Eliminar este testimonio?')) return;
             try {
+                if (!supabase) throw new Error('Supabase no inicializado');
                 const { error } = await supabase.from('testimonials').delete().eq('id', id);
                 if (error) throw error;
                 await loadTestimonials();
@@ -573,7 +596,7 @@
         }
 
         // ============================================
-        // FORMULARIOS (versiones simplificadas)
+        // FORMULARIOS
         // ============================================
         function showProductForm(productId = null) {
             const product = productId ? products.find(p => p.id === productId) : null;
@@ -661,18 +684,31 @@
         // INICIALIZACIÓN
         // ============================================
         async function init() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                currentUser = session.user;
-                document.getElementById('adminLogin').style.display = 'none';
-                document.getElementById('adminPanel').style.display = 'block';
-                document.getElementById('adminUserName').textContent = session.user.email || 'Admin';
-                loadSection('products');
-                updateStats();
+            try {
+                if (!supabase) {
+                    console.error('Supabase no está disponible');
+                    return;
+                }
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    currentUser = session.user;
+                    document.getElementById('adminLogin').style.display = 'none';
+                    document.getElementById('adminPanel').style.display = 'block';
+                    document.getElementById('adminUserName').textContent = session.user.email || 'Admin';
+                    loadSection('products');
+                    updateStats();
+                }
+            } catch (error) {
+                console.error('Error en init:', error);
             }
         }
 
-        init();
+        // Esperar a que el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     </script>
 </body>
 </html>
