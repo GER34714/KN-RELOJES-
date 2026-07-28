@@ -209,8 +209,12 @@
         const SUPABASE_URL = 'https://wrgvhnlhpkvendjhbtpm.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyZ3ZobmxocGt2ZW5kamhidHBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxNzc4NTUsImV4cCI6MjEwMDc1Mzg1NX0.0lPt4xYWr4E3gWDm4K3z8igJXui1me_j-iKZo47KkcU';
 
-        // USAR window.supabase QUE YA EXISTE (NO DECLARAR NUEVA VARIABLE)
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // ============================================
+        // CREAR CLIENTE DE SUPABASE - SIN DECLARAR NUEVA VARIABLE
+        // ============================================
+        // Usamos window.supabase que ya existe del script cargado
+        // NO usamos 'const supabase =' para evitar el error de declaración duplicada
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ============================================
         // VARIABLES GLOBALES
@@ -223,11 +227,11 @@
         let testimonials = [];
 
         // ============================================
-        // AUTENTICACIÓN
+        // AUTENTICACIÓN - USAMOS supabaseClient
         // ============================================
         async function loginAdmin(email, password) {
             try {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                 if (error) throw error;
                 currentUser = data.user;
                 document.getElementById('adminLogin').style.display = 'none';
@@ -243,18 +247,18 @@
         }
 
         async function logoutAdmin() {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             currentUser = null;
             document.getElementById('adminLogin').style.display = 'flex';
             document.getElementById('adminPanel').style.display = 'none';
         }
 
         // ============================================
-        // CRUD - PRODUCTOS
+        // CRUD - PRODUCTOS (usando supabaseClient)
         // ============================================
         async function loadProducts() {
             try {
-                const { data, error } = await supabase.from('products').select('*').order('id', { ascending: false });
+                const { data, error } = await supabaseClient.from('products').select('*').order('id', { ascending: false });
                 if (error) throw error;
                 products = data || [];
                 renderProductsTable();
@@ -274,7 +278,7 @@
 
         async function createProduct(data) {
             try {
-                const { error } = await supabase.from('products').insert([data]);
+                const { error } = await supabaseClient.from('products').insert([data]);
                 if (error) throw error;
                 await loadProducts();
                 return { success: true };
@@ -285,7 +289,7 @@
 
         async function updateProduct(id, data) {
             try {
-                const { error } = await supabase.from('products').update(data).eq('id', id);
+                const { error } = await supabaseClient.from('products').update(data).eq('id', id);
                 if (error) throw error;
                 await loadProducts();
                 return { success: true };
@@ -297,7 +301,7 @@
         async function deleteProduct(id) {
             if (!confirm('¿Eliminar este producto?')) return;
             try {
-                const { error } = await supabase.from('products').delete().eq('id', id);
+                const { error } = await supabaseClient.from('products').delete().eq('id', id);
                 if (error) throw error;
                 await loadProducts();
             } catch (error) {
@@ -310,7 +314,7 @@
         // ============================================
         async function loadCategories() {
             try {
-                const { data, error } = await supabase.from('categories').select('*').order('name');
+                const { data, error } = await supabaseClient.from('categories').select('*').order('name');
                 if (error) throw error;
                 categories = data || [];
                 renderCategoriesTable();
@@ -328,7 +332,7 @@
 
         async function createCategory(data) {
             try {
-                const { error } = await supabase.from('categories').insert([data]);
+                const { error } = await supabaseClient.from('categories').insert([data]);
                 if (error) throw error;
                 await loadCategories();
                 return { success: true };
@@ -339,7 +343,7 @@
 
         async function updateCategory(id, data) {
             try {
-                const { error } = await supabase.from('categories').update(data).eq('id', id);
+                const { error } = await supabaseClient.from('categories').update(data).eq('id', id);
                 if (error) throw error;
                 await loadCategories();
                 return { success: true };
@@ -351,7 +355,7 @@
         async function deleteCategory(id) {
             if (!confirm('¿Eliminar esta categoría?')) return;
             try {
-                const { error } = await supabase.from('categories').delete().eq('id', id);
+                const { error } = await supabaseClient.from('categories').delete().eq('id', id);
                 if (error) throw error;
                 await loadCategories();
             } catch (error) {
@@ -364,7 +368,7 @@
         // ============================================
         async function loadOrders() {
             try {
-                const { data, error } = await supabase.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
+                const { data, error } = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
                 if (error) throw error;
                 orders = data || [];
                 renderOrdersTable();
@@ -382,7 +386,7 @@
 
         async function updateOrderStatus(id, status) {
             try {
-                const { error } = await supabase.from('orders').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+                const { error } = await supabaseClient.from('orders').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
                 if (error) throw error;
                 await loadOrders();
             } catch (error) {
@@ -395,7 +399,7 @@
         // ============================================
         async function loadTestimonials() {
             try {
-                const { data, error } = await supabase.from('testimonials').select('*').order('created_at', { ascending: false });
+                const { data, error } = await supabaseClient.from('testimonials').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
                 testimonials = data || [];
                 renderTestimonialsTable();
@@ -413,7 +417,7 @@
 
         async function createTestimonial(data) {
             try {
-                const { error } = await supabase.from('testimonials').insert([data]);
+                const { error } = await supabaseClient.from('testimonials').insert([data]);
                 if (error) throw error;
                 await loadTestimonials();
                 return { success: true };
@@ -426,7 +430,7 @@
             const item = testimonials.find(t => t.id === id);
             if (!item) return;
             try {
-                const { error } = await supabase.from('testimonials').update({ is_active: !item.is_active }).eq('id', id);
+                const { error } = await supabaseClient.from('testimonials').update({ is_active: !item.is_active }).eq('id', id);
                 if (error) throw error;
                 await loadTestimonials();
             } catch (error) {
@@ -437,7 +441,7 @@
         async function deleteTestimonial(id) {
             if (!confirm('¿Eliminar este testimonio?')) return;
             try {
-                const { error } = await supabase.from('testimonials').delete().eq('id', id);
+                const { error } = await supabaseClient.from('testimonials').delete().eq('id', id);
                 if (error) throw error;
                 await loadTestimonials();
             } catch (error) {
@@ -446,7 +450,7 @@
         }
 
         // ============================================
-        // RENDER - PRODUCTOS
+        // RENDER FUNCTIONS (igual que antes)
         // ============================================
         function renderProductsTable() {
             const container = document.getElementById('productsTable');
@@ -473,9 +477,6 @@
             container.innerHTML = html;
         }
 
-        // ============================================
-        // RENDER - CATEGORÍAS
-        // ============================================
         function renderCategoriesTable() {
             const container = document.getElementById('categoriesTable');
             if (!categories.length) {
@@ -498,9 +499,6 @@
             container.innerHTML = html;
         }
 
-        // ============================================
-        // RENDER - PEDIDOS
-        // ============================================
         function renderOrdersTable() {
             const container = document.getElementById('ordersTable');
             if (!orders.length) {
@@ -509,7 +507,6 @@
             }
             let html = `<table><thead><tr><th>#</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Fecha</th><th style="text-align:center;">Acciones</th></tr></thead><tbody>`;
             orders.forEach(o => {
-                const totalItems = o.order_items ? o.order_items.reduce((sum, i) => sum + i.quantity, 0) : 0;
                 html += `<tr>
                     <td><strong>#${o.id}</strong></td>
                     <td>${o.customer_name}</td>
@@ -529,9 +526,6 @@
             container.innerHTML = html;
         }
 
-        // ============================================
-        // RENDER - TESTIMONIOS
-        // ============================================
         function renderTestimonialsTable() {
             const container = document.getElementById('testimonialsTable');
             if (!testimonials.length) {
@@ -555,18 +549,12 @@
             container.innerHTML = html;
         }
 
-        // ============================================
-        // VER DETALLE DE PEDIDO
-        // ============================================
         function viewOrder(orderId) {
             const order = orders.find(o => o.id === orderId);
             if (!order) return;
             alert(`Pedido #${order.id}\nCliente: ${order.customer_name}\nTeléfono: ${order.customer_phone}\nTotal: $${order.total_amount.toLocaleString()}\nEstado: ${order.status}`);
         }
 
-        // ============================================
-        // STATS
-        // ============================================
         function updateStats() {
             document.getElementById('statProducts').textContent = products.length;
             document.getElementById('statOrders').textContent = orders.length;
@@ -574,9 +562,6 @@
             document.getElementById('statTestimonials').textContent = testimonials.length;
         }
 
-        // ============================================
-        // NAVEGACIÓN
-        // ============================================
         function loadSection(section) {
             currentSection = section;
             document.querySelectorAll('.admin-nav button').forEach(btn => btn.classList.toggle('active', btn.dataset.section === section));
@@ -591,7 +576,7 @@
         }
 
         // ============================================
-        // FORMULARIOS - VERSIÓN SIMPLIFICADA
+        // FORMULARIOS SIMPLIFICADOS
         // ============================================
         function showProductForm(productId = null) {
             const product = productId ? products.find(p => p.id === productId) : null;
@@ -680,7 +665,7 @@
         // ============================================
         async function init() {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session) {
                     currentUser = session.user;
                     document.getElementById('adminLogin').style.display = 'none';
