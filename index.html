@@ -42,6 +42,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 
 /* =====================================================
@@ -219,7 +222,7 @@ a{
 
 
 /* =====================================================
-   HERO - NUEVA IMAGEN
+   HERO
 ===================================================== */
 
 .hero{
@@ -1406,7 +1409,7 @@ section{
         height:60px;
     }
     
-    /* HERO - MÓVIL: BOTONES CENTRADOS ABAJO */
+    /* HERO - MÓVIL */
     .hero{
         align-items:flex-end;
         justify-content:center;
@@ -1661,7 +1664,7 @@ Contacto
 
 
 <!-- =====================================================
-     HERO - NUEVA IMAGEN
+     HERO
 ===================================================== -->
 
 <main>
@@ -1967,6 +1970,8 @@ Ediciones especiales
 <div
 class="products-grid"
 id="productsGrid">
+
+<!-- Los productos se cargan desde Supabase -->
 
 </div>
 
@@ -2633,83 +2638,65 @@ function formatPrice(price) {
 
 
 /* =====================================================
-   PRODUCTOS
+   CONFIGURACIÓN SUPABASE PARA EL FRONTEND
 ===================================================== */
 
-const products = [
-{
-    id:1,
-    name:"Aurelius",
-    category:"Clásicos",
-    description:"Una pieza de líneas atemporales y elegancia discreta.",
-    image:"https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=1200&q=90",
-    price:1250000,
-    movement:"Automático",
-    material:"Acero inoxidable",
-    diameter:"40 mm",
-    water:"100 metros"
-},
-{
-    id:2,
-    name:"Noir 01",
-    category:"Automáticos",
-    description:"Diseño contemporáneo con un movimiento de alta precisión.",
-    image:"https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=1200&q=90",
-    price:1580000,
-    movement:"Automático",
-    material:"Acero y cristal zafiro",
-    diameter:"42 mm",
-    water:"100 metros"
-},
-{
-    id:3,
-    name:"Chronos",
-    category:"Deportivos",
-    description:"Potencia, precisión y carácter para acompañar cada desafío.",
-    image:"https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=90",
-    price:1890000,
-    movement:"Cronógrafo",
-    material:"Acero inoxidable",
-    diameter:"44 mm",
-    water:"200 metros"
-},
-{
-    id:4,
-    name:"Imperial",
-    category:"Ediciones especiales",
-    description:"Una edición especial creada para quienes buscan algo diferente.",
-    image:"https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&w=1200&q=90",
-    price:2350000,
-    movement:"Automático",
-    material:"Acero y oro",
-    diameter:"41 mm",
-    water:"100 metros"
-},
-{
-    id:5,
-    name:"Heritage",
-    category:"Clásicos",
-    description:"Inspirado en la tradición de la alta relojería.",
-    image:"https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=1200&q=90",
-    price:980000,
-    movement:"Automático",
-    material:"Acero inoxidable",
-    diameter:"39 mm",
-    water:"50 metros"
-},
-{
-    id:6,
-    name:"Eclipse",
-    category:"Ediciones especiales",
-    description:"Minimalismo, misterio y una presencia imposible de ignorar.",
-    image:"https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=1200&q=90",
-    price:2100000,
-    movement:"Automático",
-    material:"Titanio",
-    diameter:"43 mm",
-    water:"100 metros"
-}
+const SUPABASE_URL = 'https://wrgvhnlhpkvendjhbtpm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyZ3ZobmxocGt2ZW5kamhidHBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxNzc4NTUsImV4cCI6MjEwMDc1Mzg1NX0.0lPt4xYWr4E3gWDm4K3z8igJXui1me_j-iKZo47KkcU';
+
+// Inicializar Supabase para el frontend
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Productos se cargan desde Supabase
+let products = [];
+
+/* =====================================================
+   PRODUCTOS FALLBACK (si Supabase falla)
+===================================================== */
+
+const fallbackProducts = [
+    { id:1, name:"Aurelius", category:"Clásicos", description:"Una pieza de líneas atemporales y elegancia discreta.", image:"https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=1200&q=90", price:1250000, movement:"Automático", material:"Acero inoxidable", diameter:"40 mm", water:"100 metros" },
+    { id:2, name:"Noir 01", category:"Automáticos", description:"Diseño contemporáneo con un movimiento de alta precisión.", image:"https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=1200&q=90", price:1580000, movement:"Automático", material:"Acero y cristal zafiro", diameter:"42 mm", water:"100 metros" },
+    { id:3, name:"Chronos", category:"Deportivos", description:"Potencia, precisión y carácter para acompañar cada desafío.", image:"https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=90", price:1890000, movement:"Cronógrafo", material:"Acero inoxidable", diameter:"44 mm", water:"200 metros" },
+    { id:4, name:"Imperial", category:"Ediciones especiales", description:"Una edición especial creada para quienes buscan algo diferente.", image:"https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&w=1200&q=90", price:2350000, movement:"Automático", material:"Acero y oro", diameter:"41 mm", water:"100 metros" },
+    { id:5, name:"Heritage", category:"Clásicos", description:"Inspirado en la tradición de la alta relojería.", image:"https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=1200&q=90", price:980000, movement:"Automático", material:"Acero inoxidable", diameter:"39 mm", water:"50 metros" },
+    { id:6, name:"Eclipse", category:"Ediciones especiales", description:"Minimalismo, misterio y una presencia imposible de ignorar.", image:"https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=1200&q=90", price:2100000, movement:"Automático", material:"Titanio", diameter:"43 mm", water:"100 metros" }
 ];
+
+
+/* =====================================================
+   CARGAR PRODUCTOS DESDE SUPABASE
+===================================================== */
+
+async function loadProductsFromSupabase() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('products')
+            .select('*')
+            .eq('is_active', true)
+            .order('id');
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+            products = data;
+            console.log('✅ Productos cargados desde Supabase:', products.length);
+        } else {
+            // Si no hay datos en Supabase, usar fallback
+            products = fallbackProducts;
+            console.log('⚠️ Usando productos fallback (Supabase vacío)');
+        }
+        
+        renderProducts();
+        return products;
+    } catch (error) {
+        console.error('Error cargando productos desde Supabase:', error);
+        // Usar fallback
+        products = fallbackProducts;
+        renderProducts();
+        return products;
+    }
+}
 
 
 /* =====================================================
@@ -2927,6 +2914,7 @@ document.getElementById("cartWhatsapp").addEventListener("click", () => {
     let message = "Hola KN, quiero consultar por esta selección de relojes:\n\n";
     cart.forEach((item) => {
         const product = products.find(p => p.id === item.id);
+        if(!product) return;
         const priceFormatted = formatPrice(product.price);
         message += `- ${product.name} (${item.quantity} unidad${item.quantity > 1 ? 'es' : ''}) - ${priceFormatted}\n`;
     });
@@ -3132,14 +3120,28 @@ document.addEventListener("keydown", event => {
 
 
 /* =====================================================
-   INIT
+   INIT - CARGA DESDE SUPABASE
 ===================================================== */
 
-renderProducts();
-renderCart();
-updateCartCount();
-setTimeout(checkFooterVisibility, 100);
-window.addEventListener("resize", checkFooterVisibility);
+async function init() {
+    // Mostrar loading
+    productsGrid.innerHTML = `<p style="grid-column:1/-1;color:#999;padding:40px 0;text-align:center;">
+        <i class="fa-solid fa-spinner fa-spin"></i> Cargando productos...
+    </p>`;
+    
+    await loadProductsFromSupabase();
+    renderCart();
+    updateCartCount();
+    setTimeout(checkFooterVisibility, 100);
+    window.addEventListener("resize", checkFooterVisibility);
+}
+
+// Ejecutar init cuando el DOM esté listo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
 
 </script>
 
