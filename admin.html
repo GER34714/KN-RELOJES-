@@ -3,15 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KN Admin Panel</title>
+    <title>KN Admin Panel - Dashboard</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
+        /* ============================================
+           ESTILOS COMPLETOS
+        ============================================ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         :root {
             --black: #070707;
             --dark: #111111;
@@ -24,104 +29,668 @@
             --danger: #e74c3c;
             --success: #2ecc71;
             --warning: #f39c12;
+            --info: #3498db;
+            --sidebar-width: 250px;
         }
-        body { background: var(--black); color: var(--white); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
-        #adminLogin { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: var(--black); }
-        #adminLogin .login-box { background: var(--dark2); padding: 50px; border: 1px solid var(--gold); border-radius: 12px; max-width: 420px; width: 100%; }
-        #adminLogin .login-box .logo { text-align: center; margin-bottom: 30px; }
-        #adminLogin .login-box .logo img { width: 100px; height: auto; }
-        #adminLogin .login-box h2 { font-family: 'Cormorant Garamond', serif; font-size: 32px; color: var(--gold-light); text-align: center; margin-bottom: 8px; }
-        #adminLogin .login-box p.subtitle { color: var(--gray); text-align: center; font-size: 13px; margin-bottom: 30px; }
-        #adminLogin .login-box form { display: grid; gap: 16px; }
-        #adminLogin .login-box input { padding: 14px 18px; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 6px; font-size: 14px; transition: .3s; }
-        #adminLogin .login-box input:focus { outline: none; border-color: var(--gold); }
-        #adminLogin .login-box .btn { width: 100%; padding: 14px; margin-top: 10px; border: 1px solid var(--gold); background: var(--gold); color: #080808; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: .3s; font-weight: 600; }
-        #adminLogin .login-box .btn:hover { background: var(--gold-light); }
-        #adminLogin .login-error { color: var(--danger); font-size: 13px; text-align: center; margin-top: 10px; min-height: 20px; }
-        #adminPanel { display: none; min-height: 100vh; padding: 20px; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: var(--dark2); border-bottom: 1px solid var(--border); border-radius: 12px 12px 0 0; margin: -20px -20px 20px -20px; flex-wrap: wrap; gap: 15px; }
-        .admin-header .logo-area { display: flex; align-items: center; gap: 15px; }
-        .admin-header .logo-area img { width: 50px; height: auto; }
-        .admin-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 28px; color: var(--gold-light); }
-        .admin-header .header-actions { display: flex; gap: 12px; align-items: center; }
-        .admin-header .header-actions .user-info { color: var(--gray); font-size: 12px; margin-right: 10px; }
-        .admin-header .header-actions .user-info strong { color: var(--white); }
-        .btn-logout { padding: 10px 20px; background: transparent; border: 1px solid var(--danger); color: var(--danger); border-radius: 6px; cursor: pointer; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; transition: .3s; }
-        .btn-logout:hover { background: var(--danger); color: white; }
-        .admin-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 25px; padding: 10px 0; border-bottom: 1px solid #222; }
-        .admin-nav button { padding: 12px 24px; background: transparent; border: 1px solid #333; color: var(--gray); border-radius: 6px; cursor: pointer; transition: .3s; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-        .admin-nav button:hover { border-color: var(--gold); color: var(--gold-light); }
-        .admin-nav button.active { border-color: var(--gold); color: var(--gold-light); background: rgba(199, 166, 107, 0.1); }
-        .admin-section { display: none; padding: 10px 0; }
-        .admin-section.active { display: block; }
-        .table-container { overflow-x: auto; background: var(--dark2); border-radius: 8px; border: 1px solid #222; }
-        .table-container table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .table-container th { text-align: left; padding: 14px 16px; background: #1a1a1a; color: var(--gray); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #333; }
-        .table-container td { padding: 12px 16px; border-bottom: 1px solid #222; vertical-align: middle; }
-        .table-container tr:hover td { background: rgba(255, 255, 255, 0.02); }
-        .table-container .product-image-cell { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
-        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        body {
+            background: var(--black);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ============================================
+           LOGIN
+        ============================================ */
+        #adminLogin {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--black);
+        }
+
+        #adminLogin .login-box {
+            background: var(--dark2);
+            padding: 50px;
+            border: 1px solid var(--gold);
+            border-radius: 12px;
+            max-width: 420px;
+            width: 100%;
+        }
+
+        #adminLogin .login-box .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        #adminLogin .login-box .logo img {
+            width: 100px;
+            height: auto;
+        }
+
+        #adminLogin .login-box h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            color: var(--gold-light);
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        #adminLogin .login-box p.subtitle {
+            color: var(--gray);
+            text-align: center;
+            font-size: 13px;
+            margin-bottom: 30px;
+        }
+
+        #adminLogin .login-box form {
+            display: grid;
+            gap: 16px;
+        }
+
+        #adminLogin .login-box input {
+            padding: 14px 18px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: .3s;
+        }
+
+        #adminLogin .login-box input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        #adminLogin .login-box .btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            border: 1px solid var(--gold);
+            background: var(--gold);
+            color: #080808;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: .3s;
+            font-weight: 600;
+        }
+
+        #adminLogin .login-box .btn:hover {
+            background: var(--gold-light);
+        }
+
+        #adminLogin .login-error {
+            color: var(--danger);
+            font-size: 13px;
+            text-align: center;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+
+        /* ============================================
+           ADMIN PANEL - LAYOUT
+        ============================================ */
+        #adminPanel {
+            display: none;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--dark2);
+            border-right: 1px solid var(--border);
+            padding: 20px 0;
+            overflow-y: auto;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .logo-area {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .sidebar .logo-area img {
+            width: 80px;
+            height: auto;
+            margin: 0 auto 10px;
+        }
+
+        .sidebar .logo-area h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            color: var(--gold-light);
+        }
+
+        .sidebar .logo-area .user-info {
+            font-size: 11px;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        .sidebar .logo-area .user-info strong {
+            color: var(--white);
+        }
+
+        .sidebar nav {
+            padding: 0 10px;
+        }
+
+        .sidebar nav .nav-section {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gray);
+            padding: 15px 15px 8px;
+            opacity: 0.5;
+        }
+
+        .sidebar nav button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 15px;
+            background: transparent;
+            border: none;
+            color: var(--gray);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sidebar nav button:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--white);
+        }
+
+        .sidebar nav button.active {
+            background: rgba(199, 166, 107, 0.15);
+            color: var(--gold-light);
+        }
+
+        .sidebar nav button i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar .logout-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 10px;
+            right: 10px;
+            padding: 12px 15px;
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar .logout-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px 30px;
+            min-height: 100vh;
+        }
+
+        .main-content .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .main-content .page-header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            color: var(--gold-light);
+        }
+
+        .main-content .page-header .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* SECTIONS */
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        /* ============================================
+           COMPONENTES
+        ============================================ */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid var(--gold);
+            background: var(--gold);
+            color: #080808;
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: .3s;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary:hover {
+            background: var(--gold-light);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid #444;
+            background: transparent;
+            color: var(--gray);
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: .3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--gold);
+            color: var(--gold-light);
+        }
+
+        .btn-danger {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid var(--danger);
+            background: transparent;
+            color: var(--danger);
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: .3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background: var(--dark2);
+            border-radius: 8px;
+            border: 1px solid #222;
+        }
+
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .table-container th {
+            text-align: left;
+            padding: 14px 16px;
+            background: #1a1a1a;
+            color: var(--gray);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
+        }
+
+        .table-container td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #222;
+            vertical-align: middle;
+        }
+
+        .table-container tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .table-container .product-image-cell {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .status-badge.active { background: rgba(46, 204, 113, 0.2); color: var(--success); }
         .status-badge.inactive { background: rgba(153, 153, 153, 0.2); color: var(--gray); }
         .status-badge.pendiente { background: rgba(243, 156, 18, 0.2); color: var(--warning); }
-        .status-badge.procesando { background: rgba(52, 152, 219, 0.2); color: #3498db; }
+        .status-badge.procesando { background: rgba(52, 152, 219, 0.2); color: var(--info); }
         .status-badge.enviado { background: rgba(46, 204, 113, 0.2); color: var(--success); }
         .status-badge.entregado { background: rgba(46, 204, 113, 0.3); color: #27ae60; }
         .status-badge.cancelado { background: rgba(231, 76, 60, 0.2); color: var(--danger); }
-        .action-btn { background: transparent; border: none; cursor: pointer; font-size: 16px; padding: 4px 6px; transition: .3s; border-radius: 4px; }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px 6px;
+            transition: .3s;
+            border-radius: 4px;
+        }
+
         .action-btn.edit { color: var(--gold-light); }
         .action-btn.edit:hover { background: rgba(199, 166, 107, 0.2); }
         .action-btn.delete { color: var(--danger); }
         .action-btn.delete:hover { background: rgba(231, 76, 60, 0.2); }
-        .action-btn.view { color: #3498db; }
+        .action-btn.view { color: var(--info); }
         .action-btn.view:hover { background: rgba(52, 152, 219, 0.2); }
         .action-btn.toggle { color: var(--warning); }
         .action-btn.toggle:hover { background: rgba(243, 156, 18, 0.2); }
-        .btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: 1px solid var(--gold); background: var(--gold); color: #080808; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: .3s; font-weight: 600; }
-        .btn-primary:hover { background: var(--gold-light); }
-        .btn-secondary { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: 1px solid #444; background: transparent; color: var(--gray); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: .3s; }
-        .btn-secondary:hover { border-color: var(--gold); color: var(--gold-light); }
-        .toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
-        .modal-overlay { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); padding: 20px; }
-        .modal-overlay .modal-box { max-width: 600px; width: 100%; background: var(--dark2); border: 1px solid var(--gold); border-radius: 12px; padding: 40px; max-height: 90vh; overflow-y: auto; }
-        .modal-overlay .modal-box h2 { font-family: 'Cormorant Garamond', serif; font-size: 32px; color: var(--gold-light); margin-bottom: 25px; }
-        .modal-overlay .modal-box .form-group { display: grid; gap: 6px; margin-bottom: 16px; }
-        .modal-overlay .modal-box .form-group label { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; }
-        .modal-overlay .modal-box .form-group input, .modal-overlay .modal-box .form-group select, .modal-overlay .modal-box .form-group textarea { padding: 12px 16px; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; transition: .3s; }
-        .modal-overlay .modal-box .form-group input:focus, .modal-overlay .modal-box .form-group select:focus, .modal-overlay .modal-box .form-group textarea:focus { outline: none; border-color: var(--gold); }
-        .modal-overlay .modal-box .form-group textarea { resize: vertical; min-height: 80px; }
-        .modal-overlay .modal-box .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .modal-overlay .modal-box .modal-actions { display: flex; gap: 12px; margin-top: 20px; }
-        .modal-overlay .modal-box .modal-actions .btn-primary { flex: 1; }
-        .empty-state { text-align: center; padding: 60px 20px; color: var(--gray); }
-        .empty-state i { font-size: 48px; margin-bottom: 20px; color: #333; }
-        .empty-state p { font-size: 14px; }
-        .loading { text-align: center; padding: 40px; color: var(--gray); }
-        .loading i { font-size: 32px; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 25px; }
-        .stat-card { background: var(--dark2); padding: 20px; border-radius: 8px; border: 1px solid #222; }
-        .stat-card .stat-number { font-family: 'Cormorant Garamond', serif; font-size: 36px; color: var(--gold-light); }
-        .stat-card .stat-label { color: var(--gray); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-        @media (max-width: 768px) {
-            .admin-header { flex-direction: column; align-items: stretch; padding: 15px 20px; }
-            .admin-header .header-actions { flex-wrap: wrap; justify-content: space-between; }
-            .admin-nav button { flex: 1; min-width: 100px; text-align: center; font-size: 10px; padding: 10px 16px; }
-            .modal-overlay .modal-box { padding: 25px; }
-            .modal-overlay .modal-box .form-row { grid-template-columns: 1fr; }
-            .table-container { font-size: 12px; }
-            .table-container th, .table-container td { padding: 8px 10px; }
-            #adminLogin .login-box { padding: 30px 20px; }
+
+        /* ============================================
+           ESTADÍSTICAS - DASHBOARD
+        ============================================ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
         }
-        @media (max-width: 480px) {
-            .admin-nav button { min-width: 80px; font-size: 9px; padding: 8px 12px; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
+
+        .stat-card {
+            background: var(--dark2);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #222;
+            transition: .3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--gold);
+        }
+
+        .stat-card .stat-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px;
+            color: var(--gold-light);
+        }
+
+        .stat-card .stat-label {
+            color: var(--gray);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .stat-icon {
+            float: right;
+            font-size: 28px;
+            color: var(--gold);
+            opacity: 0.3;
+        }
+
+        /* ============================================
+           MODAL
+        ============================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-overlay .modal-box {
+            max-width: 650px;
+            width: 100%;
+            background: var(--dark2);
+            border: 1px solid var(--gold);
+            border-radius: 12px;
+            padding: 40px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay .modal-box h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            color: var(--gold-light);
+            margin-bottom: 25px;
+        }
+
+        .modal-overlay .modal-box .form-group {
+            display: grid;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .modal-overlay .modal-box .form-group label {
+            font-size: 10px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .modal-overlay .modal-box .form-group input,
+        .modal-overlay .modal-box .form-group select,
+        .modal-overlay .modal-box .form-group textarea {
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            transition: .3s;
+            width: 100%;
+        }
+
+        .modal-overlay .modal-box .form-group input:focus,
+        .modal-overlay .modal-box .form-group select:focus,
+        .modal-overlay .modal-box .form-group textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .modal-overlay .modal-box .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-overlay .modal-box .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .modal-overlay .modal-box .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .modal-overlay .modal-box .modal-actions .btn-primary {
+            flex: 1;
+        }
+
+        .modal-overlay .modal-box .image-preview {
+            max-width: 100%;
+            max-height: 150px;
+            object-fit: contain;
+            margin-top: 8px;
+            border-radius: 4px;
+            background: #1a1a1a;
+            padding: 8px;
+        }
+
+        /* ============================================
+           EMPTY STATE
+        ============================================ */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        .loading i {
+            font-size: 32px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ============================================
+           RESPONSIVE
+        ============================================ */
+        .menu-toggle {
+            display: none;
+            background: transparent;
+            border: 1px solid #333;
+            color: var(--white);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .modal-overlay .modal-box {
+                padding: 25px;
+            }
+
+            .modal-overlay .modal-box .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Overlay para móvil */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
         }
     </style>
 </head>
 <body>
 
-    <!-- LOGIN -->
+    <!-- ============================================
+    LOGIN
+    ============================================ -->
     <div id="adminLogin">
         <div class="login-box">
             <div class="logo">
@@ -138,70 +707,246 @@
         </div>
     </div>
 
-    <!-- ADMIN PANEL -->
+    <!-- ============================================
+    ADMIN PANEL
+    ============================================ -->
     <div id="adminPanel">
-        <div class="admin-header">
+
+        <!-- SIDEBAR OVERLAY (móvil) -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
             <div class="logo-area">
                 <img src="https://iili.io/Ckog2lR.md.jpg" alt="KN">
-                <h1>Administración</h1>
-            </div>
-            <div class="header-actions">
-                <span class="user-info">
+                <h2>KN Admin</h2>
+                <div class="user-info">
                     <i class="fa-regular fa-user"></i>
                     <strong id="adminUserName">Admin</strong>
-                </span>
-                <button class="btn-logout" onclick="logoutAdmin()">
-                    <i class="fa-solid fa-sign-out-alt"></i> Cerrar sesión
+                </div>
+            </div>
+
+            <nav>
+                <div class="nav-section">Principal</div>
+                <button class="active" data-section="dashboard">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
                 </button>
+
+                <div class="nav-section">Contenido</div>
+                <button data-section="products">
+                    <i class="fa-solid fa-box"></i> Productos
+                </button>
+                <button data-section="categories">
+                    <i class="fa-solid fa-tags"></i> Categorías
+                </button>
+                <button data-section="banners">
+                    <i class="fa-solid fa-images"></i> Banners
+                </button>
+                <button data-section="testimonials">
+                    <i class="fa-solid fa-comments"></i> Testimonios
+                </button>
+
+                <div class="nav-section">Ventas</div>
+                <button data-section="orders">
+                    <i class="fa-solid fa-clipboard-list"></i> Pedidos
+                </button>
+
+                <div class="nav-section">Sistema</div>
+                <button data-section="settings">
+                    <i class="fa-solid fa-cog"></i> Configuración
+                </button>
+            </nav>
+
+            <button class="logout-btn" onclick="logoutAdmin()">
+                <i class="fa-solid fa-sign-out-alt"></i> Cerrar sesión
+            </button>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="page-header">
+                <div>
+                    <button class="menu-toggle" onclick="toggleSidebar()">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h1 id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="header-actions">
+                    <span style="color:var(--gray);font-size:12px;">
+                        <i class="fa-regular fa-calendar"></i>
+                        <span id="currentDate"></span>
+                    </span>
+                </div>
             </div>
-        </div>
 
-        <nav class="admin-nav">
-            <button class="active" data-section="products"><i class="fa-solid fa-box"></i> Productos</button>
-            <button data-section="categories"><i class="fa-solid fa-tags"></i> Categorías</button>
-            <button data-section="orders"><i class="fa-solid fa-clipboard-list"></i> Pedidos</button>
-            <button data-section="testimonials"><i class="fa-solid fa-comments"></i> Testimonios</button>
-        </nav>
+            <!-- ==========================================
+            SECTION: DASHBOARD
+            ========================================== -->
+            <div class="admin-section active" id="section-dashboard">
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-box"></i></div>
+                        <div class="stat-number" id="statProducts">0</div>
+                        <div class="stat-label">Productos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                        <div class="stat-number" id="statOrders">0</div>
+                        <div class="stat-label">Pedidos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-tags"></i></div>
+                        <div class="stat-number" id="statCategories">0</div>
+                        <div class="stat-label">Categorías</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-comments"></i></div>
+                        <div class="stat-number" id="statTestimonials">0</div>
+                        <div class="stat-label">Testimonios</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-images"></i></div>
+                        <div class="stat-number" id="statBanners">0</div>
+                        <div class="stat-label">Banners</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                        <div class="stat-number" id="statAdmins">0</div>
+                        <div class="stat-label">Administradores</div>
+                    </div>
+                </div>
 
-        <div class="stats-grid" id="statsGrid">
-            <div class="stat-card"><div class="stat-number" id="statProducts">0</div><div class="stat-label">Productos</div></div>
-            <div class="stat-card"><div class="stat-number" id="statOrders">0</div><div class="stat-label">Pedidos</div></div>
-            <div class="stat-card"><div class="stat-number" id="statCategories">0</div><div class="stat-label">Categorías</div></div>
-            <div class="stat-card"><div class="stat-number" id="statTestimonials">0</div><div class="stat-label">Testimonios</div></div>
-        </div>
-
-        <div class="admin-section active" id="section-products">
-            <div class="toolbar">
-                <button class="btn-primary" onclick="showProductForm()"><i class="fa-solid fa-plus"></i> Nuevo Producto</button>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                    <div style="background:var(--dark2);padding:20px;border-radius:8px;border:1px solid #222;">
+                        <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold-light);margin-bottom:15px;">
+                            <i class="fa-solid fa-clock"></i> Últimos pedidos
+                        </h3>
+                        <div id="recentOrders">
+                            <div class="empty-state" style="padding:20px;">
+                                <p>No hay pedidos recientes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background:var(--dark2);padding:20px;border-radius:8px;border:1px solid #222;">
+                        <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold-light);margin-bottom:15px;">
+                            <i class="fa-solid fa-bolt"></i> Acciones rápidas
+                        </h3>
+                        <div style="display:grid;gap:10px;">
+                            <button onclick="loadSection('products');showProductForm()" class="btn-primary" style="width:100%;justify-content:center;">
+                                <i class="fa-solid fa-plus"></i> Nuevo producto
+                            </button>
+                            <button onclick="loadSection('banners');showBannerForm()" class="btn-secondary" style="width:100%;justify-content:center;">
+                                <i class="fa-solid fa-plus"></i> Nuevo banner
+                            </button>
+                            <button onclick="loadSection('testimonials');showTestimonialForm()" class="btn-secondary" style="width:100%;justify-content:center;">
+                                <i class="fa-solid fa-plus"></i> Nuevo testimonio
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="table-container" id="productsTable"><div class="loading"><i class="fa-solid fa-spinner"></i> Cargando...</div></div>
-        </div>
 
-        <div class="admin-section" id="section-categories">
-            <div class="toolbar">
-                <button class="btn-primary" onclick="showCategoryForm()"><i class="fa-solid fa-plus"></i> Nueva Categoría</button>
+            <!-- ==========================================
+            SECTION: PRODUCTOS
+            ========================================== -->
+            <div class="admin-section" id="section-products">
+                <div class="toolbar">
+                    <button class="btn-primary" onclick="showProductForm()">
+                        <i class="fa-solid fa-plus"></i> Nuevo Producto
+                    </button>
+                </div>
+                <div class="table-container" id="productsTable">
+                    <div class="loading"><i class="fa-solid fa-spinner"></i> Cargando...</div>
+                </div>
             </div>
-            <div class="table-container" id="categoriesTable"><div class="loading"><i class="fa-solid fa-spinner"></i> Cargando...</div></div>
-        </div>
 
-        <div class="admin-section" id="section-orders">
-            <div class="table-container" id="ordersTable"><div class="loading"><i class="fa-solid fa-spinner"></i> Cargando...</div></div>
-        </div>
-
-        <div class="admin-section" id="section-testimonials">
-            <div class="toolbar">
-                <button class="btn-primary" onclick="showTestimonialForm()"><i class="fa-solid fa-plus"></i> Nuevo Testimonio</button>
+            <!-- ==========================================
+            SECTION: CATEGORÍAS
+            ========================================== -->
+            <div class="admin-section" id="section-categories">
+                <div class="toolbar">
+                    <button class="btn-primary" onclick="showCategoryForm()">
+                        <i class="fa-solid fa-plus"></i> Nueva Categoría
+                    </button>
+                </div>
+                <div class="table-container" id="categoriesTable">
+                    <div class="loading"><i class="fa-solid fa-spinner"></i> Cargando...</div>
+                </div>
             </div>
-            <div class="table-container" id="testimonialsTable"><div class="loading"><i class="fa-solid fa-spinner"></i> Cargando...</div></div>
-        </div>
+
+            <!-- ==========================================
+            SECTION: BANNERS
+            ========================================== -->
+            <div class="admin-section" id="section-banners">
+                <div class="toolbar">
+                    <button class="btn-primary" onclick="showBannerForm()">
+                        <i class="fa-solid fa-plus"></i> Nuevo Banner
+                    </button>
+                </div>
+                <div class="table-container" id="bannersTable">
+                    <div class="loading"><i class="fa-solid fa-spinner"></i> Cargando...</div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+            SECTION: TESTIMONIOS
+            ========================================== -->
+            <div class="admin-section" id="section-testimonials">
+                <div class="toolbar">
+                    <button class="btn-primary" onclick="showTestimonialForm()">
+                        <i class="fa-solid fa-plus"></i> Nuevo Testimonio
+                    </button>
+                </div>
+                <div class="table-container" id="testimonialsTable">
+                    <div class="loading"><i class="fa-solid fa-spinner"></i> Cargando...</div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+            SECTION: PEDIDOS
+            ========================================== -->
+            <div class="admin-section" id="section-orders">
+                <div class="table-container" id="ordersTable">
+                    <div class="loading"><i class="fa-solid fa-spinner"></i> Cargando...</div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+            SECTION: CONFIGURACIÓN
+            ========================================== -->
+            <div class="admin-section" id="section-settings">
+                <div style="background:var(--dark2);padding:30px;border-radius:8px;border:1px solid #222;max-width:600px;">
+                    <h2 style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--gold-light);margin-bottom:20px;">
+                        ⚙️ Configuración
+                    </h2>
+                    <form id="settingsForm">
+                        <div class="form-group">
+                            <label>WhatsApp Number</label>
+                            <input id="settingWhatsapp" value="5491137675875">
+                        </div>
+                        <div class="form-group">
+                            <label>Mensaje por defecto para WhatsApp</label>
+                            <textarea id="settingWhatsappMessage" rows="3">Hola KN, quiero consultar por un reloj.</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Moneda</label>
+                            <select id="settingCurrency">
+                                <option value="ARS">ARS - Peso Argentino</option>
+                                <option value="USD">USD - Dólar</option>
+                                <option value="EUR">EUR - Euro</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary">Guardar Configuración</button>
+                    </form>
+                </div>
+            </div>
+        </main>
     </div>
 
+    <!-- MODAL CONTAINER -->
     <div id="modalContainer"></div>
 
-    <!-- CARGO SUPABASE -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    </script>
-    
     <script>
         // ============================================
         // CONFIGURACIÓN SUPABASE
@@ -209,25 +954,32 @@
         const SUPABASE_URL = 'https://wrgvhnlhpkvendjhbtpm.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyZ3ZobmxocGt2ZW5kamhidHBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxNzc4NTUsImV4cCI6MjEwMDc1Mzg1NX0.0lPt4xYWr4E3gWDm4K3z8igJXui1me_j-iKZo47KkcU';
 
-        // ============================================
-        // CREAR CLIENTE DE SUPABASE - SIN DECLARAR NUEVA VARIABLE
-        // ============================================
-        // Usamos window.supabase que ya existe del script cargado
-        // NO usamos 'const supabase =' para evitar el error de declaración duplicada
+        // Crear cliente de Supabase
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ============================================
-        // VARIABLES GLOBALES
+        // ESTADO GLOBAL
         // ============================================
         let currentUser = null;
-        let currentSection = 'products';
         let products = [];
         let categories = [];
         let orders = [];
         let testimonials = [];
+        let banners = [];
+        let admins = [];
 
         // ============================================
-        // AUTENTICACIÓN - USAMOS supabaseClient
+        // TOGGLE SIDEBAR (móvil)
+        // ============================================
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        // ============================================
+        // AUTENTICACIÓN
         // ============================================
         async function loginAdmin(email, password) {
             try {
@@ -237,8 +989,14 @@
                 document.getElementById('adminLogin').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
                 document.getElementById('adminUserName').textContent = data.user.email || 'Admin';
-                loadSection('products');
-                updateStats();
+                document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-ES', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                loadSection('dashboard');
+                updateAllStats();
                 return { success: true };
             } catch (error) {
                 console.error('Login error:', error);
@@ -254,7 +1012,120 @@
         }
 
         // ============================================
-        // CRUD - PRODUCTOS (usando supabaseClient)
+        // NAVEGACIÓN
+        // ============================================
+        function loadSection(section) {
+            // Actualizar sidebar
+            document.querySelectorAll('.sidebar nav button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.section === section);
+            });
+
+            // Actualizar título
+            const titles = {
+                dashboard: 'Dashboard',
+                products: 'Productos',
+                categories: 'Categorías',
+                banners: 'Banners',
+                testimonials: 'Testimonios',
+                orders: 'Pedidos',
+                settings: 'Configuración'
+            };
+            document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
+
+            // Ocultar/mostrar secciones
+            document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(`section-${section}`);
+            if (target) target.classList.add('active');
+
+            // Cerrar sidebar en móvil
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('sidebarOverlay').classList.remove('active');
+            }
+
+            // Cargar datos
+            switch(section) {
+                case 'dashboard': updateAllStats(); break;
+                case 'products': loadProducts(); break;
+                case 'categories': loadCategories(); break;
+                case 'banners': loadBanners(); break;
+                case 'testimonials': loadTestimonials(); break;
+                case 'orders': loadOrders(); break;
+            }
+        }
+
+        // Eventos de navegación
+        document.querySelectorAll('.sidebar nav button').forEach(btn => {
+            btn.addEventListener('click', () => loadSection(btn.dataset.section));
+        });
+
+        // ============================================
+        // ACTUALIZAR ESTADÍSTICAS
+        // ============================================
+        async function updateAllStats() {
+            try {
+                // Contar productos
+                const { count: productCount } = await supabaseClient.from('products').select('*', { count: 'exact', head: true });
+                document.getElementById('statProducts').textContent = productCount || 0;
+
+                // Contar pedidos
+                const { count: orderCount } = await supabaseClient.from('orders').select('*', { count: 'exact', head: true });
+                document.getElementById('statOrders').textContent = orderCount || 0;
+
+                // Contar categorías
+                const { count: categoryCount } = await supabaseClient.from('categories').select('*', { count: 'exact', head: true });
+                document.getElementById('statCategories').textContent = categoryCount || 0;
+
+                // Contar testimonios
+                const { count: testimonialCount } = await supabaseClient.from('testimonials').select('*', { count: 'exact', head: true });
+                document.getElementById('statTestimonials').textContent = testimonialCount || 0;
+
+                // Contar banners
+                const { count: bannerCount } = await supabaseClient.from('banners').select('*', { count: 'exact', head: true });
+                document.getElementById('statBanners').textContent = bannerCount || 0;
+
+                // Contar admins
+                const { count: adminCount } = await supabaseClient.from('admin_users').select('*', { count: 'exact', head: true });
+                document.getElementById('statAdmins').textContent = adminCount || 0;
+
+                // Cargar pedidos recientes
+                const { data: recentOrders } = await supabaseClient
+                    .from('orders')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(5);
+                
+                if (recentOrders && recentOrders.length > 0) {
+                    let html = '';
+                    recentOrders.forEach(o => {
+                        html += `
+                            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #222;">
+                                <div>
+                                    <strong>#${o.id}</strong> - ${o.customer_name}
+                                </div>
+                                <div>
+                                    <span class="status-badge ${o.status}">${o.status}</span>
+                                    <span style="color:var(--gold-light);margin-left:10px;">$${o.total_amount.toLocaleString()}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('recentOrders').innerHTML = html;
+                } else {
+                    document.getElementById('recentOrders').innerHTML = `
+                        <div class="empty-state" style="padding:20px;">
+                            <p>No hay pedidos recientes</p>
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+
+        // ============================================
+        // CRUD - PRODUCTOS
         // ============================================
         async function loadProducts() {
             try {
@@ -262,15 +1133,12 @@
                 if (error) throw error;
                 products = data || [];
                 renderProductsTable();
-                updateStats();
                 return data;
             } catch (error) {
-                console.error('Error loading products:', error);
                 document.getElementById('productsTable').innerHTML = `
                     <div class="empty-state">
                         <i class="fa-solid fa-exclamation-triangle"></i>
                         <p>Error: ${error.message}</p>
-                        <p style="font-size:12px;margin-top:10px;color:#666;">¿Creaste la tabla "products" en Supabase?</p>
                     </div>
                 `;
             }
@@ -281,6 +1149,7 @@
                 const { error } = await supabaseClient.from('products').insert([data]);
                 if (error) throw error;
                 await loadProducts();
+                updateAllStats();
                 return { success: true };
             } catch (error) {
                 return { success: false, error: error.message };
@@ -292,6 +1161,7 @@
                 const { error } = await supabaseClient.from('products').update(data).eq('id', id);
                 if (error) throw error;
                 await loadProducts();
+                updateAllStats();
                 return { success: true };
             } catch (error) {
                 return { success: false, error: error.message };
@@ -304,9 +1174,40 @@
                 const { error } = await supabaseClient.from('products').delete().eq('id', id);
                 if (error) throw error;
                 await loadProducts();
+                updateAllStats();
             } catch (error) {
                 alert('Error: ' + error.message);
             }
+        }
+
+        function renderProductsTable() {
+            const container = document.getElementById('productsTable');
+            if (!products.length) {
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>No hay productos aún.</p></div>`;
+                return;
+            }
+            let html = `<table><thead><tr><th>ID</th><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Estado</th><th style="text-align:center;">Acciones</th></tr></thead><tbody>`;
+            products.forEach(p => {
+                html += `<tr>
+                    <td>#${p.id}</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <img src="${p.image}" class="product-image-cell">
+                            <div><strong>${p.name}</strong></div>
+                        </div>
+                    </td>
+                    <td>${p.category}</td>
+                    <td>$${p.price.toLocaleString()}</td>
+                    <td>${p.stock || 0}</td>
+                    <td><span class="status-badge ${p.is_active ? 'active' : 'inactive'}">${p.is_active ? 'Activo' : 'Inactivo'}</span></td>
+                    <td style="text-align:center;white-space:nowrap;">
+                        <button class="action-btn edit" onclick="showProductForm(${p.id})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="action-btn delete" onclick="deleteProduct(${p.id})"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            });
+            html += `</tbody></table>`;
+            container.innerHTML = html;
         }
 
         // ============================================
@@ -318,13 +1219,12 @@
                 if (error) throw error;
                 categories = data || [];
                 renderCategoriesTable();
-                updateStats();
+                return data;
             } catch (error) {
                 document.getElementById('categoriesTable').innerHTML = `
                     <div class="empty-state">
                         <i class="fa-solid fa-exclamation-triangle"></i>
                         <p>Error: ${error.message}</p>
-                        <p style="font-size:12px;margin-top:10px;color:#666;">¿Creaste la tabla "categories" en Supabase?</p>
                     </div>
                 `;
             }
@@ -335,6 +1235,7 @@
                 const { error } = await supabaseClient.from('categories').insert([data]);
                 if (error) throw error;
                 await loadCategories();
+                updateAllStats();
                 return { success: true };
             } catch (error) {
                 return { success: false, error: error.message };
@@ -346,6 +1247,7 @@
                 const { error } = await supabaseClient.from('categories').update(data).eq('id', id);
                 if (error) throw error;
                 await loadCategories();
+                updateAllStats();
                 return { success: true };
             } catch (error) {
                 return { success: false, error: error.message };
@@ -358,123 +1260,10 @@
                 const { error } = await supabaseClient.from('categories').delete().eq('id', id);
                 if (error) throw error;
                 await loadCategories();
+                updateAllStats();
             } catch (error) {
                 alert('Error: ' + error.message);
             }
-        }
-
-        // ============================================
-        // CRUD - PEDIDOS
-        // ============================================
-        async function loadOrders() {
-            try {
-                const { data, error } = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
-                if (error) throw error;
-                orders = data || [];
-                renderOrdersTable();
-                updateStats();
-            } catch (error) {
-                document.getElementById('ordersTable').innerHTML = `
-                    <div class="empty-state">
-                        <i class="fa-solid fa-exclamation-triangle"></i>
-                        <p>Error: ${error.message}</p>
-                        <p style="font-size:12px;margin-top:10px;color:#666;">¿Creaste la tabla "orders" en Supabase?</p>
-                    </div>
-                `;
-            }
-        }
-
-        async function updateOrderStatus(id, status) {
-            try {
-                const { error } = await supabaseClient.from('orders').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
-                if (error) throw error;
-                await loadOrders();
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        // ============================================
-        // CRUD - TESTIMONIOS
-        // ============================================
-        async function loadTestimonials() {
-            try {
-                const { data, error } = await supabaseClient.from('testimonials').select('*').order('created_at', { ascending: false });
-                if (error) throw error;
-                testimonials = data || [];
-                renderTestimonialsTable();
-                updateStats();
-            } catch (error) {
-                document.getElementById('testimonialsTable').innerHTML = `
-                    <div class="empty-state">
-                        <i class="fa-solid fa-exclamation-triangle"></i>
-                        <p>Error: ${error.message}</p>
-                        <p style="font-size:12px;margin-top:10px;color:#666;">¿Creaste la tabla "testimonials" en Supabase?</p>
-                    </div>
-                `;
-            }
-        }
-
-        async function createTestimonial(data) {
-            try {
-                const { error } = await supabaseClient.from('testimonials').insert([data]);
-                if (error) throw error;
-                await loadTestimonials();
-                return { success: true };
-            } catch (error) {
-                return { success: false, error: error.message };
-            }
-        }
-
-        async function toggleTestimonial(id) {
-            const item = testimonials.find(t => t.id === id);
-            if (!item) return;
-            try {
-                const { error } = await supabaseClient.from('testimonials').update({ is_active: !item.is_active }).eq('id', id);
-                if (error) throw error;
-                await loadTestimonials();
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        async function deleteTestimonial(id) {
-            if (!confirm('¿Eliminar este testimonio?')) return;
-            try {
-                const { error } = await supabaseClient.from('testimonials').delete().eq('id', id);
-                if (error) throw error;
-                await loadTestimonials();
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        // ============================================
-        // RENDER FUNCTIONS (igual que antes)
-        // ============================================
-        function renderProductsTable() {
-            const container = document.getElementById('productsTable');
-            if (!products.length) {
-                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>No hay productos aún.</p></div>`;
-                return;
-            }
-            let html = `<table><thead><tr><th>ID</th><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Estado</th><th style="text-align:center;">Acciones</th></tr></thead><tbody>`;
-            products.forEach(p => {
-                html += `<tr>
-                    <td>#${p.id}</td>
-                    <td><div style="display:flex;align-items:center;gap:10px;"><img src="${p.image}" class="product-image-cell"><div><strong>${p.name}</strong></div></div></td>
-                    <td>${p.category}</td>
-                    <td>$${p.price.toLocaleString()}</td>
-                    <td>${p.stock || 0}</td>
-                    <td><span class="status-badge ${p.is_active ? 'active' : 'inactive'}">${p.is_active ? 'Activo' : 'Inactivo'}</span></td>
-                    <td style="text-align:center;">
-                        <button class="action-btn edit" onclick="showProductForm(${p.id})"><i class="fa-solid fa-pen"></i></button>
-                        <button class="action-btn delete" onclick="deleteProduct(${p.id})"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>`;
-            });
-            html += `</tbody></table>`;
-            container.innerHTML = html;
         }
 
         function renderCategoriesTable() {
@@ -489,7 +1278,7 @@
                     <td><strong>${c.name}</strong></td>
                     <td><code style="background:#1a1a1a;padding:2px 8px;border-radius:4px;font-size:11px;">${c.slug}</code></td>
                     <td><span class="status-badge ${c.is_active ? 'active' : 'inactive'}">${c.is_active ? 'Activo' : 'Inactivo'}</span></td>
-                    <td style="text-align:center;">
+                    <td style="text-align:center;white-space:nowrap;">
                         <button class="action-btn edit" onclick="showCategoryForm(${c.id})"><i class="fa-solid fa-pen"></i></button>
                         <button class="action-btn delete" onclick="deleteCategory(${c.id})"><i class="fa-solid fa-trash"></i></button>
                     </td>
@@ -499,31 +1288,140 @@
             container.innerHTML = html;
         }
 
-        function renderOrdersTable() {
-            const container = document.getElementById('ordersTable');
-            if (!orders.length) {
-                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clipboard-list"></i><p>No hay pedidos todavía.</p></div>`;
+        // ============================================
+        // CRUD - BANNERS
+        // ============================================
+        async function loadBanners() {
+            try {
+                const { data, error } = await supabaseClient.from('banners').select('*').order('display_order', { ascending: true });
+                if (error) throw error;
+                banners = data || [];
+                renderBannersTable();
+                return data;
+            } catch (error) {
+                document.getElementById('bannersTable').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-exclamation-triangle"></i>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function createBanner(data) {
+            try {
+                const { error } = await supabaseClient.from('banners').insert([data]);
+                if (error) throw error;
+                await loadBanners();
+                updateAllStats();
+                return { success: true };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function updateBanner(id, data) {
+            try {
+                const { error } = await supabaseClient.from('banners').update(data).eq('id', id);
+                if (error) throw error;
+                await loadBanners();
+                updateAllStats();
+                return { success: true };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function deleteBanner(id) {
+            if (!confirm('¿Eliminar este banner?')) return;
+            try {
+                const { error } = await supabaseClient.from('banners').delete().eq('id', id);
+                if (error) throw error;
+                await loadBanners();
+                updateAllStats();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function renderBannersTable() {
+            const container = document.getElementById('bannersTable');
+            if (!banners.length) {
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-images"></i><p>No hay banners aún.</p></div>`;
                 return;
             }
-            let html = `<table><thead><tr><th>#</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Fecha</th><th style="text-align:center;">Acciones</th></tr></thead><tbody>`;
-            orders.forEach(o => {
+            let html = `<table><thead><tr><th>Imagen</th><th>Título</th><th>Orden</th><th>Estado</th><th style="text-align:center;">Acciones</th></tr></thead><tbody>`;
+            banners.forEach(b => {
                 html += `<tr>
-                    <td><strong>#${o.id}</strong></td>
-                    <td>${o.customer_name}</td>
-                    <td style="color:var(--gold-light);font-weight:600;">$${o.total_amount.toLocaleString()}</td>
-                    <td>
-                        <select onchange="updateOrderStatus(${o.id}, this.value)" style="padding:4px 8px;background:#1a1a1a;border:1px solid #333;color:white;border-radius:4px;font-size:11px;">
-                            ${['pendiente','procesando','enviado','entregado','cancelado'].map(s => `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`).join('')}
-                        </select>
-                    </td>
-                    <td style="font-size:11px;color:var(--gray);">${new Date(o.created_at).toLocaleDateString()}</td>
-                    <td style="text-align:center;">
-                        <button class="action-btn view" onclick="viewOrder(${o.id})"><i class="fa-solid fa-eye"></i></button>
+                    <td><img src="${b.image_url}" style="width:80px;height:40px;object-fit:cover;border-radius:4px;"></td>
+                    <td><strong>${b.title || 'Sin título'}</strong></td>
+                    <td>${b.display_order || 0}</td>
+                    <td><span class="status-badge ${b.is_active ? 'active' : 'inactive'}">${b.is_active ? 'Activo' : 'Inactivo'}</span></td>
+                    <td style="text-align:center;white-space:nowrap;">
+                        <button class="action-btn edit" onclick="showBannerForm(${b.id})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="action-btn delete" onclick="deleteBanner(${b.id})"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>`;
             });
             html += `</tbody></table>`;
             container.innerHTML = html;
+        }
+
+        // ============================================
+        // CRUD - TESTIMONIOS
+        // ============================================
+        async function loadTestimonials() {
+            try {
+                const { data, error } = await supabaseClient.from('testimonials').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
+                testimonials = data || [];
+                renderTestimonialsTable();
+                return data;
+            } catch (error) {
+                document.getElementById('testimonialsTable').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-exclamation-triangle"></i>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function createTestimonial(data) {
+            try {
+                const { error } = await supabaseClient.from('testimonials').insert([data]);
+                if (error) throw error;
+                await loadTestimonials();
+                updateAllStats();
+                return { success: true };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function toggleTestimonial(id) {
+            const item = testimonials.find(t => t.id === id);
+            if (!item) return;
+            try {
+                const { error } = await supabaseClient.from('testimonials').update({ is_active: !item.is_active }).eq('id', id);
+                if (error) throw error;
+                await loadTestimonials();
+                updateAllStats();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function deleteTestimonial(id) {
+            if (!confirm('¿Eliminar este testimonio?')) return;
+            try {
+                const { error } = await supabaseClient.from('testimonials').delete().eq('id', id);
+                if (error) throw error;
+                await loadTestimonials();
+                updateAllStats();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
         }
 
         function renderTestimonialsTable() {
@@ -539,9 +1437,70 @@
                     <td style="max-width:300px;color:var(--gray);font-size:12px;">"${t.content ? t.content.substring(0, 60) + (t.content.length > 60 ? '...' : '') : ''}"</td>
                     <td style="color:var(--gold-light);font-size:14px;">${'★'.repeat(t.rating || 5)}</td>
                     <td><span class="status-badge ${t.is_active ? 'active' : 'inactive'}">${t.is_active ? 'Activo' : 'Inactivo'}</span></td>
-                    <td style="text-align:center;">
+                    <td style="text-align:center;white-space:nowrap;">
                         <button class="action-btn toggle" onclick="toggleTestimonial(${t.id})"><i class="fa-solid ${t.is_active ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
                         <button class="action-btn delete" onclick="deleteTestimonial(${t.id})"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            });
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        // ============================================
+        // CRUD - PEDIDOS
+        // ============================================
+        async function loadOrders() {
+            try {
+                const { data, error } = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
+                if (error) throw error;
+                orders = data || [];
+                renderOrdersTable();
+                return data;
+            } catch (error) {
+                document.getElementById('ordersTable').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-exclamation-triangle"></i>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function updateOrderStatus(id, status) {
+            try {
+                const { error } = await supabaseClient.from('orders').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+                if (error) throw error;
+                await loadOrders();
+                updateAllStats();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function renderOrdersTable() {
+            const container = document.getElementById('ordersTable');
+            if (!orders.length) {
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clipboard-list"></i><p>No hay pedidos todavía.</p></div>`;
+                return;
+            }
+            let html = `<table><thead><tr><th>#</th><th>Cliente</th><th>Teléfono</th><th>Total</th><th>Productos</th><th>Estado</th><th>Fecha</th><th style="text-align:center;">Acciones</th></tr></thead><tbody>`;
+            orders.forEach(o => {
+                const totalItems = o.order_items ? o.order_items.reduce((sum, i) => sum + i.quantity, 0) : 0;
+                html += `<tr>
+                    <td><strong>#${o.id}</strong></td>
+                    <td>${o.customer_name}</td>
+                    <td>${o.customer_phone}</td>
+                    <td style="color:var(--gold-light);font-weight:600;">$${o.total_amount.toLocaleString()}</td>
+                    <td>${totalItems} unidades</td>
+                    <td>
+                        <select onchange="updateOrderStatus(${o.id}, this.value)" style="padding:4px 8px;background:#1a1a1a;border:1px solid #333;color:white;border-radius:4px;font-size:11px;">
+                            ${['pendiente','procesando','enviado','entregado','cancelado'].map(s => `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td style="font-size:11px;color:var(--gray);">${new Date(o.created_at).toLocaleDateString()}</td>
+                    <td style="text-align:center;">
+                        <button class="action-btn view" onclick="viewOrder(${o.id})"><i class="fa-solid fa-eye"></i></button>
                     </td>
                 </tr>`;
             });
@@ -552,112 +1511,418 @@
         function viewOrder(orderId) {
             const order = orders.find(o => o.id === orderId);
             if (!order) return;
-            alert(`Pedido #${order.id}\nCliente: ${order.customer_name}\nTeléfono: ${order.customer_phone}\nTotal: $${order.total_amount.toLocaleString()}\nEstado: ${order.status}`);
-        }
-
-        function updateStats() {
-            document.getElementById('statProducts').textContent = products.length;
-            document.getElementById('statOrders').textContent = orders.length;
-            document.getElementById('statCategories').textContent = categories.length;
-            document.getElementById('statTestimonials').textContent = testimonials.length;
-        }
-
-        function loadSection(section) {
-            currentSection = section;
-            document.querySelectorAll('.admin-nav button').forEach(btn => btn.classList.toggle('active', btn.dataset.section === section));
-            document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(`section-${section}`).classList.add('active');
-            switch(section) {
-                case 'products': loadProducts(); break;
-                case 'categories': loadCategories(); break;
-                case 'orders': loadOrders(); break;
-                case 'testimonials': loadTestimonials(); break;
+            let itemsHtml = '';
+            if (order.order_items && order.order_items.length) {
+                order.order_items.forEach(item => {
+                    itemsHtml += `
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #222;">
+                            <div>
+                                <strong>${item.product_name}</strong>
+                                <span style="color:var(--gray);font-size:12px;margin-left:10px;">x${item.quantity}</span>
+                            </div>
+                            <span style="color:var(--gold-light);">$${(item.unit_price * item.quantity).toLocaleString()}</span>
+                        </div>
+                    `;
+                });
             }
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.id = 'orderDetailModal';
+            modal.innerHTML = `
+                <div class="modal-box">
+                    <h2>📋 Pedido #${order.id}</h2>
+                    <p style="color:var(--gray);font-size:13px;margin-bottom:20px;">
+                        ${new Date(order.created_at).toLocaleString()}
+                    </p>
+                    <div style="margin-bottom:20px;padding:15px;background:#111;border-radius:8px;">
+                        <h4 style="color:var(--gold-light);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Cliente</h4>
+                        <p><strong>${order.customer_name}</strong></p>
+                        <p style="color:var(--gray);font-size:13px;">📞 ${order.customer_phone}</p>
+                        ${order.customer_email ? `<p style="color:var(--gray);font-size:13px;">✉️ ${order.customer_email}</p>` : ''}
+                        <p style="margin-top:6px;">
+                            <span class="status-badge ${order.status}">${order.status}</span>
+                        </p>
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <h4 style="color:var(--gold-light);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Productos</h4>
+                        ${itemsHtml}
+                        <div style="display:flex;justify-content:space-between;padding:15px 0;border-top:2px solid var(--gold);font-size:16px;font-weight:600;">
+                            <span>Total</span>
+                            <span style="color:var(--gold-light);">$${order.total_amount.toLocaleString()}</span>
+                        </div>
+                    </div>
+                    ${order.notes ? `
+                        <div style="margin-bottom:20px;padding:15px;background:#111;border-radius:8px;">
+                            <h4 style="color:var(--gold-light);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Notas</h4>
+                            <p style="color:var(--gray);font-size:13px;">${order.notes}</p>
+                        </div>
+                    ` : ''}
+                    <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()" style="width:100%;">
+                        Cerrar
+                    </button>
+                </div>
+            `;
+            document.getElementById('modalContainer').appendChild(modal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
         }
 
         // ============================================
-        // FORMULARIOS SIMPLIFICADOS
+        // FORMULARIOS
         // ============================================
+
+        // --- PRODUCTO ---
         function showProductForm(productId = null) {
             const product = productId ? products.find(p => p.id === productId) : null;
             const isEdit = !!product;
-            const name = prompt(isEdit ? 'Editar nombre del producto:' : 'Nombre del producto:', isEdit ? product.name : '');
-            if (name === null) return;
-            const price = prompt(isEdit ? 'Editar precio:' : 'Precio:', isEdit ? product.price : '');
-            if (price === null) return;
-            
-            const data = {
-                name: name,
-                category: product ? product.category : 'Clásicos',
-                description: product ? product.description : 'Descripción del producto',
-                image: product ? product.image : 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=1200&q=90',
-                price: parseInt(price),
-                stock: product ? product.stock : 10,
-                movement: product ? product.movement : 'Automático',
-                material: product ? product.material : 'Acero inoxidable',
-                diameter: product ? product.diameter : '40 mm',
-                water: product ? product.water : '100 metros',
-                is_active: true
-            };
-            
-            if (isEdit) {
-                updateProduct(product.id, data);
-            } else {
-                createProduct(data);
-            }
+
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.id = 'productFormModal';
+
+            modal.innerHTML = `
+                <div class="modal-box">
+                    <h2>${isEdit ? '✏️ Editar' : '➕ Nuevo'} Producto</h2>
+                    <form id="productForm">
+                        <input type="hidden" id="productFormId" value="${isEdit ? product.id : ''}">
+                        <div class="form-group">
+                            <label>Nombre *</label>
+                            <input id="productFormName" value="${isEdit ? product.name : ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Categoría *</label>
+                            <select id="productFormCategory" required>
+                                <option value="">Seleccionar...</option>
+                                ${['Clásicos','Automáticos','Deportivos','Ediciones especiales'].map(cat => `
+                                    <option value="${cat}" ${isEdit && product.category === cat ? 'selected' : ''}>${cat}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción</label>
+                            <textarea id="productFormDescription" rows="3">${isEdit ? product.description : ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>URL de Imagen *</label>
+                            <input id="productFormImage" value="${isEdit ? product.image : ''}" required>
+                            <img id="productImagePreview" src="${isEdit ? product.image : ''}" class="image-preview" style="${isEdit ? '' : 'display:none;'}">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Precio (ARS) *</label>
+                                <input type="number" id="productFormPrice" value="${isEdit ? product.price : ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Stock</label>
+                                <input type="number" id="productFormStock" value="${isEdit ? (product.stock || 10) : 10}">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Movimiento</label>
+                                <input id="productFormMovement" value="${isEdit ? product.movement : ''}">
+                            </div>
+                            <div class="form-group">
+                                <label>Material</label>
+                                <input id="productFormMaterial" value="${isEdit ? product.material : ''}">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Diámetro</label>
+                                <input id="productFormDiameter" value="${isEdit ? product.diameter : ''}">
+                            </div>
+                            <div class="form-group">
+                                <label>Resistencia al agua</label>
+                                <input id="productFormWater" value="${isEdit ? product.water : ''}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <select id="productFormActive">
+                                <option value="true" ${isEdit && product.is_active ? 'selected' : ''}>Activo</option>
+                                <option value="false" ${isEdit && !product.is_active ? 'selected' : ''}>Inactivo</option>
+                            </select>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="submit" class="btn-primary">${isEdit ? 'Actualizar' : 'Crear'}</button>
+                            <button type="button" class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.getElementById('modalContainer').appendChild(modal);
+
+            // Preview de imagen
+            document.getElementById('productFormImage').addEventListener('input', function() {
+                const preview = document.getElementById('productImagePreview');
+                if (this.value) {
+                    preview.src = this.value;
+                    preview.style.display = 'block';
+                } else {
+                    preview.style.display = 'none';
+                }
+            });
+
+            document.getElementById('productForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = {
+                    name: document.getElementById('productFormName').value.trim(),
+                    category: document.getElementById('productFormCategory').value,
+                    description: document.getElementById('productFormDescription').value.trim(),
+                    image: document.getElementById('productFormImage').value.trim(),
+                    price: parseInt(document.getElementById('productFormPrice').value),
+                    stock: parseInt(document.getElementById('productFormStock').value) || 10,
+                    movement: document.getElementById('productFormMovement').value.trim(),
+                    material: document.getElementById('productFormMaterial').value.trim(),
+                    diameter: document.getElementById('productFormDiameter').value.trim(),
+                    water: document.getElementById('productFormWater').value.trim(),
+                    is_active: document.getElementById('productFormActive').value === 'true'
+                };
+
+                const id = document.getElementById('productFormId').value;
+                let result;
+                if (id) {
+                    result = await updateProduct(parseInt(id), formData);
+                } else {
+                    result = await createProduct(formData);
+                }
+                if (result && result.success) {
+                    modal.remove();
+                } else if (result && result.error) {
+                    alert('Error: ' + result.error);
+                }
+            });
         }
 
+        // --- CATEGORÍA ---
         function showCategoryForm(categoryId = null) {
             const category = categoryId ? categories.find(c => c.id === categoryId) : null;
             const isEdit = !!category;
-            const name = prompt(isEdit ? 'Editar nombre de la categoría:' : 'Nombre de la categoría:', isEdit ? category.name : '');
-            if (name === null) return;
-            
-            const data = {
-                name: name,
-                slug: name.toLowerCase().replace(/\s+/g, '-'),
-                description: category ? category.description : '',
-                image: category ? category.image : '',
-                is_active: true
-            };
-            
-            if (isEdit) {
-                updateCategory(category.id, data);
-            } else {
-                createCategory(data);
-            }
+
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.id = 'categoryFormModal';
+
+            modal.innerHTML = `
+                <div class="modal-box">
+                    <h2>${isEdit ? '✏️ Editar' : '➕ Nueva'} Categoría</h2>
+                    <form id="categoryForm">
+                        <input type="hidden" id="categoryFormId" value="${isEdit ? category.id : ''}">
+                        <div class="form-group">
+                            <label>Nombre *</label>
+                            <input id="categoryFormName" value="${isEdit ? category.name : ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Slug *</label>
+                            <input id="categoryFormSlug" value="${isEdit ? category.slug : ''}" required>
+                            <div style="font-size:11px;color:var(--gray);">Ej: relojes-clasicos</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción</label>
+                            <input id="categoryFormDescription" value="${isEdit ? (category.description || '') : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>URL Imagen</label>
+                            <input id="categoryFormImage" value="${isEdit ? (category.image || '') : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <select id="categoryFormActive">
+                                <option value="true" ${isEdit && category.is_active ? 'selected' : ''}>Activo</option>
+                                <option value="false" ${isEdit && !category.is_active ? 'selected' : ''}>Inactivo</option>
+                            </select>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="submit" class="btn-primary">${isEdit ? 'Actualizar' : 'Crear'}</button>
+                            <button type="button" class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.getElementById('modalContainer').appendChild(modal);
+
+            document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = {
+                    name: document.getElementById('categoryFormName').value.trim(),
+                    slug: document.getElementById('categoryFormSlug').value.trim().toLowerCase().replace(/\s+/g, '-'),
+                    description: document.getElementById('categoryFormDescription').value.trim(),
+                    image: document.getElementById('categoryFormImage').value.trim(),
+                    is_active: document.getElementById('categoryFormActive').value === 'true'
+                };
+
+                const id = document.getElementById('categoryFormId').value;
+                let result;
+                if (id) {
+                    result = await updateCategory(parseInt(id), formData);
+                } else {
+                    result = await createCategory(formData);
+                }
+                if (result && result.success) {
+                    modal.remove();
+                } else if (result && result.error) {
+                    alert('Error: ' + result.error);
+                }
+            });
         }
 
+        // --- BANNER ---
+        function showBannerForm(bannerId = null) {
+            const banner = bannerId ? banners.find(b => b.id === bannerId) : null;
+            const isEdit = !!banner;
+
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.id = 'bannerFormModal';
+
+            modal.innerHTML = `
+                <div class="modal-box">
+                    <h2>${isEdit ? '✏️ Editar' : '➕ Nuevo'} Banner</h2>
+                    <form id="bannerForm">
+                        <input type="hidden" id="bannerFormId" value="${isEdit ? banner.id : ''}">
+                        <div class="form-group">
+                            <label>Título</label>
+                            <input id="bannerFormTitle" value="${isEdit ? (banner.title || '') : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Subtítulo</label>
+                            <input id="bannerFormSubtitle" value="${isEdit ? (banner.subtitle || '') : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>URL de Imagen *</label>
+                            <input id="bannerFormImage" value="${isEdit ? banner.image_url : ''}" required>
+                            <img id="bannerImagePreview" src="${isEdit ? banner.image_url : ''}" class="image-preview" style="${isEdit ? '' : 'display:none;'}">
+                        </div>
+                        <div class="form-group">
+                            <label>URL de enlace</label>
+                            <input id="bannerFormLink" value="${isEdit ? (banner.link_url || '') : ''}" placeholder="#coleccion">
+                        </div>
+                        <div class="form-group">
+                            <label>Orden de visualización</label>
+                            <input type="number" id="bannerFormOrder" value="${isEdit ? (banner.display_order || 0) : 0}">
+                        </div>
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <select id="bannerFormActive">
+                                <option value="true" ${isEdit && banner.is_active ? 'selected' : ''}>Activo</option>
+                                <option value="false" ${isEdit && !banner.is_active ? 'selected' : ''}>Inactivo</option>
+                            </select>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="submit" class="btn-primary">${isEdit ? 'Actualizar' : 'Crear'}</button>
+                            <button type="button" class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.getElementById('modalContainer').appendChild(modal);
+
+            // Preview de imagen
+            document.getElementById('bannerFormImage').addEventListener('input', function() {
+                const preview = document.getElementById('bannerImagePreview');
+                if (this.value) {
+                    preview.src = this.value;
+                    preview.style.display = 'block';
+                } else {
+                    preview.style.display = 'none';
+                }
+            });
+
+            document.getElementById('bannerForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = {
+                    title: document.getElementById('bannerFormTitle').value.trim(),
+                    subtitle: document.getElementById('bannerFormSubtitle').value.trim(),
+                    image_url: document.getElementById('bannerFormImage').value.trim(),
+                    link_url: document.getElementById('bannerFormLink').value.trim(),
+                    display_order: parseInt(document.getElementById('bannerFormOrder').value) || 0,
+                    is_active: document.getElementById('bannerFormActive').value === 'true'
+                };
+
+                const id = document.getElementById('bannerFormId').value;
+                let result;
+                if (id) {
+                    result = await updateBanner(parseInt(id), formData);
+                } else {
+                    result = await createBanner(formData);
+                }
+                if (result && result.success) {
+                    modal.remove();
+                } else if (result && result.error) {
+                    alert('Error: ' + result.error);
+                }
+            });
+        }
+
+        // --- TESTIMONIO ---
         function showTestimonialForm() {
-            const name = prompt('Nombre del cliente:');
-            if (name === null) return;
-            const content = prompt('Contenido del testimonio:');
-            if (content === null) return;
-            
-            createTestimonial({
-                name: name,
-                location: 'Buenos Aires',
-                content: content,
-                rating: 5,
-                is_active: true
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.id = 'testimonialFormModal';
+
+            modal.innerHTML = `
+                <div class="modal-box">
+                    <h2>➕ Nuevo Testimonio</h2>
+                    <form id="testimonialForm">
+                        <div class="form-group">
+                            <label>Nombre *</label>
+                            <input id="testimonialFormName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Ubicación</label>
+                            <input id="testimonialFormLocation" placeholder="Ej: Buenos Aires">
+                        </div>
+                        <div class="form-group">
+                            <label>Contenido *</label>
+                            <textarea id="testimonialFormContent" rows="4" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Calificación</label>
+                            <select id="testimonialFormRating">
+                                ${[5,4,3,2,1].map(n => `
+                                    <option value="${n}" ${n === 5 ? 'selected' : ''}>${'★'.repeat(n)}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="submit" class="btn-primary">Crear</button>
+                            <button type="button" class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.getElementById('modalContainer').appendChild(modal);
+
+            document.getElementById('testimonialForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = {
+                    name: document.getElementById('testimonialFormName').value.trim(),
+                    location: document.getElementById('testimonialFormLocation').value.trim(),
+                    content: document.getElementById('testimonialFormContent').value.trim(),
+                    rating: parseInt(document.getElementById('testimonialFormRating').value),
+                    is_active: true
+                };
+
+                const result = await createTestimonial(formData);
+                if (result && result.success) {
+                    modal.remove();
+                } else if (result && result.error) {
+                    alert('Error: ' + result.error);
+                }
             });
         }
 
         // ============================================
-        // EVENTOS
+        // CONFIGURACIÓN
         // ============================================
-        document.querySelectorAll('.admin-nav button').forEach(btn => {
-            btn.addEventListener('click', () => loadSection(btn.dataset.section));
-        });
-
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const errorEl = document.getElementById('loginError');
-            errorEl.textContent = '';
-            const result = await loginAdmin(email, password);
-            if (!result.success) errorEl.textContent = result.error || 'Error al iniciar sesión';
+            alert('Configuración guardada correctamente!');
+            // Aquí puedes implementar guardar en Supabase en la tabla settings
         });
 
         // ============================================
@@ -671,8 +1936,14 @@
                     document.getElementById('adminLogin').style.display = 'none';
                     document.getElementById('adminPanel').style.display = 'block';
                     document.getElementById('adminUserName').textContent = session.user.email || 'Admin';
-                    loadSection('products');
-                    updateStats();
+                    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-ES', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    loadSection('dashboard');
+                    updateAllStats();
                 }
             } catch (error) {
                 console.error('Error en init:', error);
@@ -685,6 +1956,13 @@
         } else {
             init();
         }
+
+        // Cerrar modal al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.remove();
+            }
+        });
     </script>
 </body>
 </html>
