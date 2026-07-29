@@ -1065,6 +1065,37 @@
         let banners = [];
 
         // ============================================
+        // FUNCIÓN PARA COPIAR URL
+        // ============================================
+        window.copyToClipboard = function(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('✅ URL copiada al portapapeles');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        };
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                alert('✅ URL copiada al portapapeles');
+            } catch (err) {
+                alert('❌ No se pudo copiar. Selecciona la URL manualmente.');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // ============================================
         // TOGGLE SIDEBAR
         // ============================================
         function toggleSidebar() {
@@ -1719,24 +1750,6 @@
         }
 
         // ============================================
-        // FUNCIÓN PARA COPIAR URL
-        // ============================================
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert('✅ URL copiada al portapapeles');
-            }).catch(() => {
-                // Fallback para navegadores que no soportan clipboard
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                alert('✅ URL copiada al portapapeles');
-            });
-        }
-
-        // ============================================
         // FORMULARIOS
         // ============================================
 
@@ -1757,13 +1770,13 @@
                         ${gallery.map((url, index) => `
                             <div class="gallery-item">
                                 <img src="${url}" alt="Imagen ${index + 1}" onerror="this.src='https://via.placeholder.com/150/333/666?text=Error'">
-                                <button class="copy-url-btn" onclick="copyToClipboard('${url}')" title="Copiar URL">
+                                <button class="copy-url-btn" onclick="window.copyToClipboard('${url}')" title="Copiar URL">
                                     <i class="fa-regular fa-copy"></i>
                                 </button>
                                 <button class="remove-image" onclick="removeGalleryImage(${product ? product.id : 0}, ${index})">
                                     <i class="fa-solid fa-times"></i>
                                 </button>
-                                <div class="gallery-url" onclick="copyToClipboard('${url}')" title="Click para copiar URL">
+                                <div class="gallery-url" onclick="window.copyToClipboard('${url}')" title="Click para copiar URL">
                                     ${url}
                                 </div>
                             </div>
@@ -1950,8 +1963,9 @@
                     // Comprimir y convertir a WebP
                     const compressedFile = await compressImage(file);
                     
-                    // Generar nombre único
-                    const fileName = `product_${productId || 'new'}_${Date.now()}_${i}.webp`;
+                    // Generar nombre único con timestamp
+                    const timestamp = Date.now();
+                    const fileName = `product_${productId || 'new'}_${timestamp}_${i}.webp`;
                     const filePath = `products/${fileName}`;
 
                     console.log('📤 Subiendo a bucket:', STORAGE_BUCKET);
@@ -2013,20 +2027,23 @@
             const grid = document.getElementById('galleryGrid');
             if (grid) {
                 if (gallery.length > 0) {
-                    grid.innerHTML = gallery.map((url, index) => `
-                        <div class="gallery-item">
-                            <img src="${url}" alt="Imagen ${index + 1}" onerror="this.src='https://via.placeholder.com/150/333/666?text=Error'">
-                            <button class="copy-url-btn" onclick="copyToClipboard('${url}')" title="Copiar URL">
-                                <i class="fa-regular fa-copy"></i>
-                            </button>
-                            <button class="remove-image" onclick="removeGalleryImage(${productId}, ${index})">
-                                <i class="fa-solid fa-times"></i>
-                            </button>
-                            <div class="gallery-url" onclick="copyToClipboard('${url}')" title="Click para copiar URL">
-                                ${url}
+                    grid.innerHTML = gallery.map((url, index) => {
+                        const pid = productId || 0;
+                        return `
+                            <div class="gallery-item">
+                                <img src="${url}" alt="Imagen ${index + 1}" onerror="this.src='https://via.placeholder.com/150/333/666?text=Error'">
+                                <button class="copy-url-btn" onclick="window.copyToClipboard('${url}')" title="Copiar URL">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                                <button class="remove-image" onclick="removeGalleryImage(${pid}, ${index})">
+                                    <i class="fa-solid fa-times"></i>
+                                </button>
+                                <div class="gallery-url" onclick="window.copyToClipboard('${url}')" title="Click para copiar URL">
+                                    ${url}
+                                </div>
                             </div>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 } else {
                     grid.innerHTML = `<div class="empty-state" style="padding:20px;"><p style="font-size:12px;color:#666;">No hay imágenes en la galería</p></div>`;
                 }
@@ -2053,20 +2070,23 @@
                 const grid = document.getElementById('galleryGrid');
                 if (grid) {
                     if (gallery.length > 0) {
-                        grid.innerHTML = gallery.map((url, i) => `
-                            <div class="gallery-item">
-                                <img src="${url}" alt="Imagen ${i + 1}" onerror="this.src='https://via.placeholder.com/150/333/666?text=Error'">
-                                <button class="copy-url-btn" onclick="copyToClipboard('${url}')" title="Copiar URL">
-                                    <i class="fa-regular fa-copy"></i>
-                                </button>
-                                <button class="remove-image" onclick="removeGalleryImage(${productId}, ${i})">
-                                    <i class="fa-solid fa-times"></i>
-                                </button>
-                                <div class="gallery-url" onclick="copyToClipboard('${url}')" title="Click para copiar URL">
-                                    ${url}
+                        grid.innerHTML = gallery.map((url, i) => {
+                            const pid = productId || 0;
+                            return `
+                                <div class="gallery-item">
+                                    <img src="${url}" alt="Imagen ${i + 1}" onerror="this.src='https://via.placeholder.com/150/333/666?text=Error'">
+                                    <button class="copy-url-btn" onclick="window.copyToClipboard('${url}')" title="Copiar URL">
+                                        <i class="fa-regular fa-copy"></i>
+                                    </button>
+                                    <button class="remove-image" onclick="removeGalleryImage(${pid}, ${i})">
+                                        <i class="fa-solid fa-times"></i>
+                                    </button>
+                                    <div class="gallery-url" onclick="window.copyToClipboard('${url}')" title="Click para copiar URL">
+                                        ${url}
+                                    </div>
                                 </div>
-                            </div>
-                        `).join('');
+                            `;
+                        }).join('');
                     } else {
                         grid.innerHTML = `<div class="empty-state" style="padding:20px;"><p style="font-size:12px;color:#666;">No hay imágenes en la galería</p></div>`;
                     }
