@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KN Admin Panel - Dashboard</title>
+    <title>KN Admin Panel</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -143,10 +143,12 @@
             height: 100vh;
             background: var(--dark2);
             border-right: 1px solid var(--border);
-            padding: 20px 0;
+            padding: 20px 0 80px 0;
             overflow-y: auto;
             z-index: 100;
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
 
         .sidebar .logo-area {
@@ -154,6 +156,7 @@
             border-bottom: 1px solid var(--border);
             margin-bottom: 20px;
             text-align: center;
+            flex-shrink: 0;
         }
 
         .sidebar .logo-area img {
@@ -180,6 +183,8 @@
 
         .sidebar nav {
             padding: 0 10px;
+            flex: 1;
+            overflow-y: auto;
         }
 
         .sidebar nav .nav-section {
@@ -223,11 +228,19 @@
             font-size: 16px;
         }
 
+        .sidebar .logout-wrapper {
+            padding: 10px;
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+            flex-shrink: 0;
+            background: var(--dark2);
+        }
+
         .sidebar .logout-btn {
-            position: absolute;
-            bottom: 20px;
-            left: 10px;
-            right: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
             padding: 12px 15px;
             background: transparent;
             border: 1px solid var(--danger);
@@ -237,14 +250,16 @@
             transition: all 0.3s;
             font-size: 13px;
             font-family: 'Inter', sans-serif;
-            display: flex;
-            align-items: center;
-            gap: 12px;
         }
 
         .sidebar .logout-btn:hover {
             background: var(--danger);
             color: white;
+        }
+
+        .sidebar .logout-btn i {
+            width: 20px;
+            text-align: center;
         }
 
         .main-content {
@@ -326,28 +341,6 @@
         .btn-secondary:hover {
             border-color: var(--gold);
             color: var(--gold-light);
-        }
-
-        .btn-danger {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border: 1px solid var(--danger);
-            background: transparent;
-            color: var(--danger);
-            font-size: 11px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: .3s;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .btn-danger:hover {
-            background: var(--danger);
-            color: white;
         }
 
         .toolbar {
@@ -490,7 +483,7 @@
         }
 
         .modal-overlay .modal-box {
-            max-width: 650px;
+            max-width: 700px;
             width: 100%;
             background: var(--dark2);
             border: 1px solid var(--gold);
@@ -570,6 +563,151 @@
             border-radius: 4px;
             background: #1a1a1a;
             padding: 8px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #333;
+            aspect-ratio: 1;
+            background: #1a1a1a;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-item .gallery-url {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.8);
+            padding: 6px 8px;
+            font-size: 9px;
+            color: #aaa;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        .gallery-item .gallery-url:hover {
+            color: var(--gold-light);
+            background: rgba(0,0,0,0.95);
+        }
+
+        .gallery-item .remove-image {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: .3s;
+            z-index: 2;
+        }
+
+        .gallery-item .remove-image:hover {
+            transform: scale(1.1);
+        }
+
+        .gallery-item .copy-url-btn {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            background: rgba(52, 152, 219, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: .3s;
+            z-index: 2;
+        }
+
+        .gallery-item .copy-url-btn:hover {
+            transform: scale(1.1);
+            background: rgba(52, 152, 219, 1);
+        }
+
+        .gallery-upload-area {
+            border: 2px dashed #333;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            color: var(--gray);
+            cursor: pointer;
+            transition: .3s;
+            margin-top: 10px;
+        }
+
+        .gallery-upload-area:hover {
+            border-color: var(--gold);
+            color: var(--gold-light);
+        }
+
+        .gallery-upload-area input[type="file"] {
+            display: none;
+        }
+
+        .gallery-upload-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .gallery-upload-preview .preview-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #333;
+            aspect-ratio: 1;
+            background: #1a1a1a;
+        }
+
+        .gallery-upload-preview .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-upload-preview .preview-item .preview-status {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            right: 4px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-align: center;
         }
 
         .empty-state {
@@ -723,9 +861,11 @@
                 </button>
             </nav>
 
-            <button class="logout-btn" onclick="logoutAdmin()">
-                <i class="fa-solid fa-sign-out-alt"></i> Cerrar sesión
-            </button>
+            <div class="logout-wrapper">
+                <button class="logout-btn" onclick="logoutAdmin()">
+                    <i class="fa-solid fa-sign-out-alt"></i> Cerrar sesión
+                </button>
+            </div>
         </aside>
 
         <main class="main-content">
@@ -746,7 +886,7 @@
 
             <!-- DASHBOARD -->
             <div class="admin-section active" id="section-dashboard">
-                <div class="stats-grid" id="statsGrid">
+                <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon"><i class="fa-solid fa-box"></i></div>
                         <div class="stat-number" id="statProducts">0</div>
@@ -903,9 +1043,16 @@
         // ============================================
         const SUPABASE_URL = 'https://wrgvhnlhpkvendjhbtpm.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyZ3ZobmxocGt2ZW5kamhidHBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxNzc4NTUsImV4cCI6MjEwMDc1Mzg1NX0.0lPt4xYWr4E3gWDm4K3z8igJXui1me_j-iKZo47KkcU';
+        const SUPABASE_SERVICE_ROLE = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyZ3ZobmxocGt2ZW5kamhidHBtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NTE3Nzg1NSwiZXhwIjoyMTAwNzUzODU1fQ.lWEkGAj2wcpSE58PEFDviDDhfzihLSFjnn6L58_ZITU';
 
-        // Crear cliente de Supabase
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseAdmin = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE);
+
+        console.log('✅ Supabase cliente creado');
+        console.log('✅ Supabase Admin cliente creado (bypasea RLS)');
+
+        const STORAGE_BUCKET = 'imagenes kn relojes';
+        console.log('📁 Usando bucket:', STORAGE_BUCKET);
 
         // ============================================
         // ESTADO GLOBAL
@@ -977,6 +1124,7 @@
                 currentUser = null;
                 document.getElementById('adminLogin').style.display = 'flex';
                 document.getElementById('adminPanel').style.display = 'none';
+                console.log('✅ Sesión cerrada');
             } catch (error) {
                 console.error('Error al cerrar sesión:', error);
             }
@@ -1521,22 +1669,118 @@
         }
 
         // ============================================
+        // COMPRESIÓN DE IMAGEN
+        // ============================================
+        async function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const maxSize = 1920;
+                        if (width > maxSize || height > maxSize) {
+                            if (width > height) {
+                                height = (height / width) * maxSize;
+                                width = maxSize;
+                            } else {
+                                width = (width / height) * maxSize;
+                                height = maxSize;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        canvas.toBlob((blob) => {
+                            if (blob) {
+                                const compressedFile = new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), {
+                                    type: 'image/webp',
+                                    lastModified: Date.now()
+                                });
+                                console.log(`✅ Imagen comprimida: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(blob.size / 1024).toFixed(0)}KB`);
+                                resolve(compressedFile);
+                            } else {
+                                reject(new Error('Error al comprimir imagen'));
+                            }
+                        }, 'image/webp', 0.8);
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+            });
+        }
+
+        // ============================================
+        // FUNCIÓN PARA COPIAR URL
+        // ============================================
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ URL copiada al portapapeles');
+            }).catch(() => {
+                // Fallback para navegadores que no soportan clipboard
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('✅ URL copiada al portapapeles');
+            });
+        }
+
+        // ============================================
         // FORMULARIOS
         // ============================================
 
+        // --- PRODUCTO CON GALERÍA ---
         function showProductForm(productId = null) {
             const product = productId ? products.find(p => p.id === productId) : null;
             const isEdit = !!product;
+            const gallery = product?.gallery || [];
 
             const modal = document.createElement('div');
             modal.className = 'modal-overlay active';
             modal.id = 'productFormModal';
+
+            let galleryHtml = '';
+            if (gallery && gallery.length > 0) {
+                galleryHtml = `
+                    <div class="gallery-grid" id="galleryGrid">
+                        ${gallery.map((url, index) => `
+                            <div class="gallery-item">
+                                <img src="${url}" alt="Imagen ${index + 1}" onerror="this.src='https://via.placeholder.com/150/333/666?text=Error'">
+                                <button class="copy-url-btn" onclick="copyToClipboard('${url}')" title="Copiar URL">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                                <button class="remove-image" onclick="removeGalleryImage(${product ? product.id : 0}, ${index})">
+                                    <i class="fa-solid fa-times"></i>
+                                </button>
+                                <div class="gallery-url" onclick="copyToClipboard('${url}')" title="Click para copiar URL">
+                                    ${url}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                galleryHtml = `<div class="empty-state" style="padding:20px;"><p style="font-size:12px;color:#666;">No hay imágenes en la galería</p></div>`;
+            }
 
             modal.innerHTML = `
                 <div class="modal-box">
                     <h2>${isEdit ? '✏️ Editar' : '➕ Nuevo'} Producto</h2>
                     <form id="productForm">
                         <input type="hidden" id="productFormId" value="${isEdit ? product.id : ''}">
+                        <input type="hidden" id="productGallery" value='${JSON.stringify(gallery)}'>
+                        
                         <div class="form-group">
                             <label>Nombre *</label>
                             <input id="productFormName" value="${isEdit ? product.name : ''}" required>
@@ -1555,10 +1799,28 @@
                             <textarea id="productFormDescription" rows="3">${isEdit ? product.description : ''}</textarea>
                         </div>
                         <div class="form-group">
-                            <label>URL de Imagen *</label>
+                            <label>URL de Imagen Principal *</label>
                             <input id="productFormImage" value="${isEdit ? product.image : ''}" required>
                             <img id="productImagePreview" src="${isEdit ? product.image : ''}" class="image-preview" style="${isEdit ? '' : 'display:none;'}">
                         </div>
+                        
+                        <div class="form-group">
+                            <label>Galería de Imágenes</label>
+                            ${galleryHtml}
+                            <div class="gallery-upload-area" onclick="document.getElementById('galleryFileInput').click()">
+                                <i class="fa-solid fa-cloud-upload-alt" style="font-size:24px;display:block;margin-bottom:10px;"></i>
+                                <span>Haz clic para subir imágenes (múltiples)</span>
+                                <input type="file" id="galleryFileInput" multiple accept="image/*" onchange="handleGalleryUpload(event, ${product ? product.id : 0})">
+                            </div>
+                            <div id="galleryUploadProgress" style="display:none;margin-top:10px;">
+                                <div style="background:#1a1a1a;border-radius:4px;height:20px;overflow:hidden;">
+                                    <div id="galleryProgressBar" style="background:var(--gold);height:100%;width:0%;transition:width 0.3s;"></div>
+                                </div>
+                                <span id="galleryProgressText" style="font-size:12px;color:var(--gray);">Subiendo...</span>
+                            </div>
+                            <div id="galleryPreviewContainer" class="gallery-upload-preview"></div>
+                        </div>
+
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Precio (ARS) *</label>
@@ -1606,6 +1868,7 @@
 
             document.getElementById('modalContainer').appendChild(modal);
 
+            // Preview de imagen principal
             document.getElementById('productFormImage').addEventListener('input', function() {
                 const preview = document.getElementById('productImagePreview');
                 if (this.value) {
@@ -1618,11 +1881,14 @@
 
             document.getElementById('productForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const galleryData = JSON.parse(document.getElementById('productGallery').value || '[]');
+                
                 const formData = {
                     name: document.getElementById('productFormName').value.trim(),
                     category: document.getElementById('productFormCategory').value,
                     description: document.getElementById('productFormDescription').value.trim(),
                     image: document.getElementById('productFormImage').value.trim(),
+                    gallery: galleryData,
                     price: parseInt(document.getElementById('productFormPrice').value),
                     stock: parseInt(document.getElementById('productFormStock').value) || 10,
                     movement: document.getElementById('productFormMovement').value.trim(),
@@ -1647,6 +1913,168 @@
             });
         }
 
+        // --- FUNCIONES DE GALERÍA ---
+        window.handleGalleryUpload = async function(event, productId) {
+            const files = event.target.files;
+            if (!files.length) return;
+
+            const progressDiv = document.getElementById('galleryUploadProgress');
+            const progressBar = document.getElementById('galleryProgressBar');
+            const progressText = document.getElementById('galleryProgressText');
+            const previewContainer = document.getElementById('galleryPreviewContainer');
+            progressDiv.style.display = 'block';
+
+            const gallery = JSON.parse(document.getElementById('productGallery').value || '[]');
+            let uploaded = 0;
+
+            // Mostrar preview de las imágenes seleccionadas
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    previewItem.id = `preview-${i}`;
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview ${i + 1}">
+                        <div class="preview-status">⏳ Subiendo...</div>
+                    `;
+                    previewContainer.appendChild(previewItem);
+                };
+                reader.readAsDataURL(file);
+            }
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                try {
+                    // Comprimir y convertir a WebP
+                    const compressedFile = await compressImage(file);
+                    
+                    // Generar nombre único
+                    const fileName = `product_${productId || 'new'}_${Date.now()}_${i}.webp`;
+                    const filePath = `products/${fileName}`;
+
+                    console.log('📤 Subiendo a bucket:', STORAGE_BUCKET);
+                    console.log('📁 Ruta:', filePath);
+
+                    // USAR SUPABASE ADMIN (bypasea RLS)
+                    const { data, error } = await supabaseAdmin.storage
+                        .from(STORAGE_BUCKET)
+                        .upload(filePath, compressedFile, {
+                            contentType: 'image/webp',
+                            cacheControl: '3600'
+                        });
+
+                    if (error) {
+                        console.error('❌ Error detallado:', error);
+                        throw error;
+                    }
+
+                    console.log('✅ Subida exitosa:', data);
+
+                    // Obtener URL pública
+                    const { data: urlData } = supabaseAdmin.storage
+                        .from(STORAGE_BUCKET)
+                        .getPublicUrl(filePath);
+
+                    const publicUrl = urlData.publicUrl;
+                    console.log('🔗 URL pública:', publicUrl);
+
+                    gallery.push(publicUrl);
+                    uploaded++;
+
+                    // Actualizar preview
+                    const previewItem = document.getElementById(`preview-${i}`);
+                    if (previewItem) {
+                        previewItem.querySelector('.preview-status').textContent = '✅ Subida';
+                        previewItem.querySelector('.preview-status').style.background = 'rgba(46, 204, 113, 0.7)';
+                    }
+
+                    const progress = Math.round((uploaded / files.length) * 100);
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = `Subiendo ${uploaded}/${files.length}...`;
+
+                } catch (error) {
+                    console.error('❌ Error subiendo imagen:', error);
+                    const previewItem = document.getElementById(`preview-${i}`);
+                    if (previewItem) {
+                        previewItem.querySelector('.preview-status').textContent = '❌ Error';
+                        previewItem.querySelector('.preview-status').style.background = 'rgba(231, 76, 60, 0.7)';
+                    }
+                    alert('Error al subir imagen: ' + error.message);
+                }
+            }
+
+            // Guardar la galería actualizada
+            document.getElementById('productGallery').value = JSON.stringify(gallery);
+            progressText.textContent = '✅ ¡Completado!';
+            
+            // Actualizar el grid de galería INMEDIATAMENTE con las URLs
+            const grid = document.getElementById('galleryGrid');
+            if (grid) {
+                if (gallery.length > 0) {
+                    grid.innerHTML = gallery.map((url, index) => `
+                        <div class="gallery-item">
+                            <img src="${url}" alt="Imagen ${index + 1}" onerror="this.src='https://via.placeholder.com/150/333/666?text=Error'">
+                            <button class="copy-url-btn" onclick="copyToClipboard('${url}')" title="Copiar URL">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                            <button class="remove-image" onclick="removeGalleryImage(${productId}, ${index})">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
+                            <div class="gallery-url" onclick="copyToClipboard('${url}')" title="Click para copiar URL">
+                                ${url}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    grid.innerHTML = `<div class="empty-state" style="padding:20px;"><p style="font-size:12px;color:#666;">No hay imágenes en la galería</p></div>`;
+                }
+            }
+
+            setTimeout(() => {
+                progressDiv.style.display = 'none';
+                progressBar.style.width = '0%';
+                previewContainer.innerHTML = '';
+            }, 2000);
+
+            event.target.value = '';
+        };
+
+        window.removeGalleryImage = function(productId, index) {
+            const galleryInput = document.getElementById('productGallery');
+            if (!galleryInput) return;
+            
+            const gallery = JSON.parse(galleryInput.value || '[]');
+            if (index >= 0 && index < gallery.length) {
+                gallery.splice(index, 1);
+                galleryInput.value = JSON.stringify(gallery);
+                
+                const grid = document.getElementById('galleryGrid');
+                if (grid) {
+                    if (gallery.length > 0) {
+                        grid.innerHTML = gallery.map((url, i) => `
+                            <div class="gallery-item">
+                                <img src="${url}" alt="Imagen ${i + 1}" onerror="this.src='https://via.placeholder.com/150/333/666?text=Error'">
+                                <button class="copy-url-btn" onclick="copyToClipboard('${url}')" title="Copiar URL">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                                <button class="remove-image" onclick="removeGalleryImage(${productId}, ${i})">
+                                    <i class="fa-solid fa-times"></i>
+                                </button>
+                                <div class="gallery-url" onclick="copyToClipboard('${url}')" title="Click para copiar URL">
+                                    ${url}
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        grid.innerHTML = `<div class="empty-state" style="padding:20px;"><p style="font-size:12px;color:#666;">No hay imágenes en la galería</p></div>`;
+                    }
+                }
+            }
+        };
+
+        // --- CATEGORÍA ---
         function showCategoryForm(categoryId = null) {
             const category = categoryId ? categories.find(c => c.id === categoryId) : null;
             const isEdit = !!category;
@@ -1719,6 +2147,7 @@
             });
         }
 
+        // --- BANNER ---
         function showBannerForm(bannerId = null) {
             const banner = bannerId ? banners.find(b => b.id === bannerId) : null;
             const isEdit = !!banner;
@@ -1806,6 +2235,7 @@
             });
         }
 
+        // --- TESTIMONIO ---
         function showTestimonialForm() {
             const modal = document.createElement('div');
             modal.className = 'modal-overlay active';
