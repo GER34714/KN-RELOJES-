@@ -794,6 +794,18 @@
         .sidebar-overlay.active {
             display: block;
         }
+
+        .preview-item .preview-status.success {
+            background: rgba(46, 204, 113, 0.8);
+        }
+
+        .preview-item .preview-status.error {
+            background: rgba(231, 76, 60, 0.8);
+        }
+
+        .preview-item .preview-status.uploading {
+            background: rgba(243, 156, 18, 0.8);
+        }
     </style>
 </head>
 <body>
@@ -1750,6 +1762,240 @@
         }
 
         // ============================================
+        // MANEJADOR DE SUBIDA DE IMAGEN PRINCIPAL CON PREVIEW
+        // ============================================
+        window.handleMainImageUpload = async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const previewImg = document.getElementById('productImagePreview');
+            const imageInput = document.getElementById('productFormImage');
+            
+            // Mostrar preview local inmediatamente
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            
+            try {
+                // Comprimir imagen
+                const compressedFile = await compressImage(file);
+                
+                // Generar nombre único
+                const timestamp = Date.now();
+                const fileName = `product_${timestamp}_main.webp`;
+                const filePath = `products/${fileName}`;
+
+                // Subir a Supabase usando Admin
+                const { data, error } = await supabaseAdmin.storage
+                    .from(STORAGE_BUCKET)
+                    .upload(filePath, compressedFile, {
+                        contentType: 'image/webp',
+                        cacheControl: '3600'
+                    });
+
+                if (error) throw error;
+
+                // Obtener URL pública
+                const { data: urlData } = supabaseAdmin.storage
+                    .from(STORAGE_BUCKET)
+                    .getPublicUrl(filePath);
+
+                const publicUrl = urlData.publicUrl;
+                
+                // Actualizar preview con la imagen subida
+                previewImg.src = publicUrl;
+                previewImg.style.display = 'block';
+                
+                // Actualizar el campo de URL
+                imageInput.value = publicUrl;
+                
+            } catch (error) {
+                console.error('Error subiendo imagen principal:', error);
+                alert('Error al subir la imagen: ' + error.message);
+            }
+            
+            event.target.value = '';
+        };
+
+        // ============================================
+        // MANEJADOR DE SUBIDA DE GALERÍA CON PREVIEW
+        // ============================================
+        window.handleGalleryUpload = async function(event, productId) {
+            const files = event.target.files;
+            if (!files.length) return;
+
+            const progressDiv = document.getElementById('galleryUploadProgress');
+            const progressBar = document.getElementById('galleryProgressBar');
+            const progressText = document.getElementById('galleryProgressText');
+            const previewContainer = document.getElementById('galleryPreviewContainer');
+            progressDiv.style.display = 'block';
+
+            const gallery = JSON.parse(document.getElementById('productGallery').value || '[]');
+            let uploaded = 0;
+
+            // Mostrar preview de las imágenes seleccionadas
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    previewItem.id = `preview-${i}`;
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview ${i + 1}">
+                        <div class="preview-status uploading">⏳ Subiendo...</div>
+                    `;
+                    previewContainer.appendChild(previewItem);
+                };
+                reader.readAsDataURL(file);
+            }
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                try {
+                    // Comprimir y convertir a WebP
+                    const compressedFile = await compressImage(file);
+                    
+                    // Generar nombre único con timestamp
+                    const timestamp = Date.now();
+                    const fileName = `product_${productId || 'new'}_${timestamp}_${i}.webp`;
+                    const filePath = `products/${fileName}`;
+
+                    console.log('📤 Subiendo a bucket:', STORAGE_BUCKET);
+                    console.log('📁 Ruta:', filePath);
+
+                    // USAR SUPABASE ADMIN (bypasea RLS)
+                    const { data, error } = await supabaseAdmin.storage
+                        .from(STORAGE_BUCKET)
+                        .upload(filePath, compressedFile, {
+                            contentType: 'image/webp',
+                            cacheControl: '3600'
+                        });
+
+                    if (error) {
+                        console.error('❌ Error detallado:', error);
+                        throw error;
+                    }
+
+                    console.log('✅ Subida exitosa:', data);
+
+                    // Obtener URL pública
+                    const { data: urlData } = supabaseAdmin.storage
+                        .from(STORAGE_BUCKET)
+                        .getPublicUrl(filePath);
+
+                    const publicUrl = urlData.publicUrl;
+                    console.log('🔗 URL pública:', publicUrl);
+
+                    gallery.push(publicUrl);
+                    uploaded++;
+
+                    // Actualizar preview
+                    const previewItem = document.getElementById(`preview-${i}`);
+                    if (previewItem) {
+                        previewItem.querySelector('.preview-status').textContent = '✅ Subida';
+                        previewItem.querySelector('.preview-status').className = 'preview-status success';
+                        // Actualizar la imagen con la URL subida
+                        previewItem.querySelector('img').src = publicUrl;
+                    }
+
+                    const progress = Math.round((uploaded / files.length) * 100);
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = `Subiendo ${uploaded}/${files.length}...`;
+
+                } catch (error) {
+                    console.error('❌ Error subiendo imagen:', error);
+                    const previewItem = document.getElementById(`preview-${i}`);
+                    if (previewItem) {
+                        previewItem.querySelector('.preview-status').textContent = '❌ Error';
+                        previewItem.querySelector('.preview-status').className = 'preview-status error';
+                    }
+                    alert('Error al subir imagen: ' + error.message);
+                }
+            }
+
+            // Guardar la galería actualizada
+            document.getElementById('productGallery').value = JSON.stringify(gallery);
+            progressText.textContent = '✅ ¡Completado!';
+            
+            // Actualizar el grid de galería INMEDIATAMENTE con las URLs
+            const grid = document.getElementById('galleryGrid');
+            if (grid) {
+                if (gallery.length > 0) {
+                    grid.innerHTML = gallery.map((url, index) => {
+                        const pid = productId || 0;
+                        return `
+                            <div class="gallery-item">
+                                <img src="${url}" alt="Imagen ${index + 1}" onerror="this.src='https://via.placeholder.com/150/333/666?text=Error'">
+                                <button class="copy-url-btn" onclick="window.copyToClipboard('${url}')" title="Copiar URL">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                                <button class="remove-image" onclick="removeGalleryImage(${pid}, ${index})">
+                                    <i class="fa-solid fa-times"></i>
+                                </button>
+                                <div class="gallery-url" onclick="window.copyToClipboard('${url}')" title="Click para copiar URL">
+                                    ${url}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    grid.innerHTML = `<div class="empty-state" style="padding:20px;"><p style="font-size:12px;color:#666;">No hay imágenes en la galería</p></div>`;
+                }
+            }
+
+            setTimeout(() => {
+                progressDiv.style.display = 'none';
+                progressBar.style.width = '0%';
+                previewContainer.innerHTML = '';
+            }, 2000);
+
+            event.target.value = '';
+        };
+
+        // ============================================
+        // ELIMINAR IMAGEN DE GALERÍA
+        // ============================================
+        window.removeGalleryImage = function(productId, index) {
+            const galleryInput = document.getElementById('productGallery');
+            if (!galleryInput) return;
+            
+            const gallery = JSON.parse(galleryInput.value || '[]');
+            if (index >= 0 && index < gallery.length) {
+                gallery.splice(index, 1);
+                galleryInput.value = JSON.stringify(gallery);
+                
+                const grid = document.getElementById('galleryGrid');
+                if (grid) {
+                    if (gallery.length > 0) {
+                        grid.innerHTML = gallery.map((url, i) => {
+                            const pid = productId || 0;
+                            return `
+                                <div class="gallery-item">
+                                    <img src="${url}" alt="Imagen ${i + 1}" onerror="this.src='https://via.placeholder.com/150/333/666?text=Error'">
+                                    <button class="copy-url-btn" onclick="window.copyToClipboard('${url}')" title="Copiar URL">
+                                        <i class="fa-regular fa-copy"></i>
+                                    </button>
+                                    <button class="remove-image" onclick="removeGalleryImage(${pid}, ${i})">
+                                        <i class="fa-solid fa-times"></i>
+                                    </button>
+                                    <div class="gallery-url" onclick="window.copyToClipboard('${url}')" title="Click para copiar URL">
+                                        ${url}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    } else {
+                        grid.innerHTML = `<div class="empty-state" style="padding:20px;"><p style="font-size:12px;color:#666;">No hay imágenes en la galería</p></div>`;
+                    }
+                }
+            }
+        };
+
+        // ============================================
         // FORMULARIOS
         // ============================================
 
@@ -1811,27 +2057,38 @@
                             <label>Descripción</label>
                             <textarea id="productFormDescription" rows="3">${isEdit ? product.description : ''}</textarea>
                         </div>
+                        
+                        <!-- IMAGEN PRINCIPAL CON PREVIEW -->
                         <div class="form-group">
-                            <label>URL de Imagen Principal *</label>
-                            <input id="productFormImage" value="${isEdit ? product.image : ''}" required>
-                            <img id="productImagePreview" src="${isEdit ? product.image : ''}" class="image-preview" style="${isEdit ? '' : 'display:none;'}">
+                            <label>Imagen Principal *</label>
+                            <div class="gallery-upload-area" onclick="document.getElementById('mainImageFileInput').click()">
+                                <i class="fa-solid fa-cloud-upload-alt" style="font-size:24px;display:block;margin-bottom:10px;"></i>
+                                <span>Haz clic para subir imagen principal</span>
+                                <input type="file" id="mainImageFileInput" accept="image/*" onchange="handleMainImageUpload(event)">
+                            </div>
+                            <div style="margin-top:8px;">
+                                <label style="font-size:11px;color:var(--gray);">O ingresa la URL manualmente:</label>
+                                <input id="productFormImage" value="${isEdit ? product.image : ''}" placeholder="https://..." style="margin-top:4px;">
+                            </div>
+                            <img id="productImagePreview" src="${isEdit ? product.image : ''}" class="image-preview" style="${isEdit && product.image ? '' : 'display:none;'}">
                         </div>
                         
+                        <!-- GALERÍA -->
                         <div class="form-group">
                             <label>Galería de Imágenes</label>
                             ${galleryHtml}
                             <div class="gallery-upload-area" onclick="document.getElementById('galleryFileInput').click()">
-                                <i class="fa-solid fa-cloud-upload-alt" style="font-size:24px;display:block;margin-bottom:10px;"></i>
-                                <span>Haz clic para subir imágenes (múltiples)</span>
+                                <i class="fa-solid fa-images" style="font-size:24px;display:block;margin-bottom:10px;"></i>
+                                <span>Haz clic para subir imágenes a la galería (múltiples)</span>
                                 <input type="file" id="galleryFileInput" multiple accept="image/*" onchange="handleGalleryUpload(event, ${product ? product.id : 0})">
                             </div>
+                            <div id="galleryPreviewContainer" class="gallery-upload-preview"></div>
                             <div id="galleryUploadProgress" style="display:none;margin-top:10px;">
                                 <div style="background:#1a1a1a;border-radius:4px;height:20px;overflow:hidden;">
                                     <div id="galleryProgressBar" style="background:var(--gold);height:100%;width:0%;transition:width 0.3s;"></div>
                                 </div>
                                 <span id="galleryProgressText" style="font-size:12px;color:var(--gray);">Subiendo...</span>
                             </div>
-                            <div id="galleryPreviewContainer" class="gallery-upload-preview"></div>
                         </div>
 
                         <div class="form-row">
@@ -1881,7 +2138,7 @@
 
             document.getElementById('modalContainer').appendChild(modal);
 
-            // Preview de imagen principal
+            // Preview de imagen principal cuando se ingresa URL manualmente
             document.getElementById('productFormImage').addEventListener('input', function() {
                 const preview = document.getElementById('productImagePreview');
                 if (this.value) {
@@ -1892,6 +2149,12 @@
                 }
             });
 
+            // Si hay una imagen existente, mostrarla
+            if (isEdit && product.image) {
+                document.getElementById('productImagePreview').style.display = 'block';
+            }
+
+            // Enviar formulario
             document.getElementById('productForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const galleryData = JSON.parse(document.getElementById('productGallery').value || '[]');
@@ -1925,174 +2188,6 @@
                 }
             });
         }
-
-        // --- FUNCIONES DE GALERÍA ---
-        window.handleGalleryUpload = async function(event, productId) {
-            const files = event.target.files;
-            if (!files.length) return;
-
-            const progressDiv = document.getElementById('galleryUploadProgress');
-            const progressBar = document.getElementById('galleryProgressBar');
-            const progressText = document.getElementById('galleryProgressText');
-            const previewContainer = document.getElementById('galleryPreviewContainer');
-            progressDiv.style.display = 'block';
-
-            const gallery = JSON.parse(document.getElementById('productGallery').value || '[]');
-            let uploaded = 0;
-
-            // Mostrar preview de las imágenes seleccionadas
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const previewItem = document.createElement('div');
-                    previewItem.className = 'preview-item';
-                    previewItem.id = `preview-${i}`;
-                    previewItem.innerHTML = `
-                        <img src="${e.target.result}" alt="Preview ${i + 1}">
-                        <div class="preview-status">⏳ Subiendo...</div>
-                    `;
-                    previewContainer.appendChild(previewItem);
-                };
-                reader.readAsDataURL(file);
-            }
-
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                try {
-                    // Comprimir y convertir a WebP
-                    const compressedFile = await compressImage(file);
-                    
-                    // Generar nombre único con timestamp
-                    const timestamp = Date.now();
-                    const fileName = `product_${productId || 'new'}_${timestamp}_${i}.webp`;
-                    const filePath = `products/${fileName}`;
-
-                    console.log('📤 Subiendo a bucket:', STORAGE_BUCKET);
-                    console.log('📁 Ruta:', filePath);
-
-                    // USAR SUPABASE ADMIN (bypasea RLS)
-                    const { data, error } = await supabaseAdmin.storage
-                        .from(STORAGE_BUCKET)
-                        .upload(filePath, compressedFile, {
-                            contentType: 'image/webp',
-                            cacheControl: '3600'
-                        });
-
-                    if (error) {
-                        console.error('❌ Error detallado:', error);
-                        throw error;
-                    }
-
-                    console.log('✅ Subida exitosa:', data);
-
-                    // Obtener URL pública
-                    const { data: urlData } = supabaseAdmin.storage
-                        .from(STORAGE_BUCKET)
-                        .getPublicUrl(filePath);
-
-                    const publicUrl = urlData.publicUrl;
-                    console.log('🔗 URL pública:', publicUrl);
-
-                    gallery.push(publicUrl);
-                    uploaded++;
-
-                    // Actualizar preview
-                    const previewItem = document.getElementById(`preview-${i}`);
-                    if (previewItem) {
-                        previewItem.querySelector('.preview-status').textContent = '✅ Subida';
-                        previewItem.querySelector('.preview-status').style.background = 'rgba(46, 204, 113, 0.7)';
-                    }
-
-                    const progress = Math.round((uploaded / files.length) * 100);
-                    progressBar.style.width = progress + '%';
-                    progressText.textContent = `Subiendo ${uploaded}/${files.length}...`;
-
-                } catch (error) {
-                    console.error('❌ Error subiendo imagen:', error);
-                    const previewItem = document.getElementById(`preview-${i}`);
-                    if (previewItem) {
-                        previewItem.querySelector('.preview-status').textContent = '❌ Error';
-                        previewItem.querySelector('.preview-status').style.background = 'rgba(231, 76, 60, 0.7)';
-                    }
-                    alert('Error al subir imagen: ' + error.message);
-                }
-            }
-
-            // Guardar la galería actualizada
-            document.getElementById('productGallery').value = JSON.stringify(gallery);
-            progressText.textContent = '✅ ¡Completado!';
-            
-            // Actualizar el grid de galería INMEDIATAMENTE con las URLs
-            const grid = document.getElementById('galleryGrid');
-            if (grid) {
-                if (gallery.length > 0) {
-                    grid.innerHTML = gallery.map((url, index) => {
-                        const pid = productId || 0;
-                        return `
-                            <div class="gallery-item">
-                                <img src="${url}" alt="Imagen ${index + 1}" onerror="this.src='https://via.placeholder.com/150/333/666?text=Error'">
-                                <button class="copy-url-btn" onclick="window.copyToClipboard('${url}')" title="Copiar URL">
-                                    <i class="fa-regular fa-copy"></i>
-                                </button>
-                                <button class="remove-image" onclick="removeGalleryImage(${pid}, ${index})">
-                                    <i class="fa-solid fa-times"></i>
-                                </button>
-                                <div class="gallery-url" onclick="window.copyToClipboard('${url}')" title="Click para copiar URL">
-                                    ${url}
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    grid.innerHTML = `<div class="empty-state" style="padding:20px;"><p style="font-size:12px;color:#666;">No hay imágenes en la galería</p></div>`;
-                }
-            }
-
-            setTimeout(() => {
-                progressDiv.style.display = 'none';
-                progressBar.style.width = '0%';
-                previewContainer.innerHTML = '';
-            }, 2000);
-
-            event.target.value = '';
-        };
-
-        window.removeGalleryImage = function(productId, index) {
-            const galleryInput = document.getElementById('productGallery');
-            if (!galleryInput) return;
-            
-            const gallery = JSON.parse(galleryInput.value || '[]');
-            if (index >= 0 && index < gallery.length) {
-                gallery.splice(index, 1);
-                galleryInput.value = JSON.stringify(gallery);
-                
-                const grid = document.getElementById('galleryGrid');
-                if (grid) {
-                    if (gallery.length > 0) {
-                        grid.innerHTML = gallery.map((url, i) => {
-                            const pid = productId || 0;
-                            return `
-                                <div class="gallery-item">
-                                    <img src="${url}" alt="Imagen ${i + 1}" onerror="this.src='https://via.placeholder.com/150/333/666?text=Error'">
-                                    <button class="copy-url-btn" onclick="window.copyToClipboard('${url}')" title="Copiar URL">
-                                        <i class="fa-regular fa-copy"></i>
-                                    </button>
-                                    <button class="remove-image" onclick="removeGalleryImage(${pid}, ${i})">
-                                        <i class="fa-solid fa-times"></i>
-                                    </button>
-                                    <div class="gallery-url" onclick="window.copyToClipboard('${url}')" title="Click para copiar URL">
-                                        ${url}
-                                    </div>
-                                </div>
-                            `;
-                        }).join('');
-                    } else {
-                        grid.innerHTML = `<div class="empty-state" style="padding:20px;"><p style="font-size:12px;color:#666;">No hay imágenes en la galería</p></div>`;
-                    }
-                }
-            }
-        };
 
         // --- CATEGORÍA ---
         function showCategoryForm(categoryId = null) {
@@ -2167,7 +2262,7 @@
             });
         }
 
-        // --- BANNER ---
+        // --- BANNER CON PREVIEW ---
         function showBannerForm(bannerId = null) {
             const banner = bannerId ? banners.find(b => b.id === bannerId) : null;
             const isEdit = !!banner;
@@ -2191,8 +2286,16 @@
                         </div>
                         <div class="form-group">
                             <label>URL de Imagen *</label>
-                            <input id="bannerFormImage" value="${isEdit ? banner.image_url : ''}" required>
-                            <img id="bannerImagePreview" src="${isEdit ? banner.image_url : ''}" class="image-preview" style="${isEdit ? '' : 'display:none;'}">
+                            <div class="gallery-upload-area" onclick="document.getElementById('bannerImageFileInput').click()">
+                                <i class="fa-solid fa-cloud-upload-alt" style="font-size:24px;display:block;margin-bottom:10px;"></i>
+                                <span>Haz clic para subir imagen del banner</span>
+                                <input type="file" id="bannerImageFileInput" accept="image/*" onchange="handleBannerImageUpload(event)">
+                            </div>
+                            <div style="margin-top:8px;">
+                                <label style="font-size:11px;color:var(--gray);">O ingresa la URL manualmente:</label>
+                                <input id="bannerFormImage" value="${isEdit ? banner.image_url : ''}" style="margin-top:4px;">
+                            </div>
+                            <img id="bannerImagePreview" src="${isEdit ? banner.image_url : ''}" class="image-preview" style="${isEdit && banner.image_url ? '' : 'display:none;'}">
                         </div>
                         <div class="form-group">
                             <label>URL de enlace</label>
@@ -2219,6 +2322,7 @@
 
             document.getElementById('modalContainer').appendChild(modal);
 
+            // Preview de imagen cuando se ingresa URL manualmente
             document.getElementById('bannerFormImage').addEventListener('input', function() {
                 const preview = document.getElementById('bannerImagePreview');
                 if (this.value) {
@@ -2228,6 +2332,11 @@
                     preview.style.display = 'none';
                 }
             });
+
+            // Si hay una imagen existente, mostrarla
+            if (isEdit && banner.image_url) {
+                document.getElementById('bannerImagePreview').style.display = 'block';
+            }
 
             document.getElementById('bannerForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -2254,6 +2363,54 @@
                 }
             });
         }
+
+        // --- MANEJADOR PARA BANNER ---
+        window.handleBannerImageUpload = async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const previewImg = document.getElementById('bannerImagePreview');
+            const imageInput = document.getElementById('bannerFormImage');
+            
+            // Mostrar preview local inmediatamente
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            
+            try {
+                const compressedFile = await compressImage(file);
+                
+                const timestamp = Date.now();
+                const fileName = `banner_${timestamp}.webp`;
+                const filePath = `banners/${fileName}`;
+
+                const { data, error } = await supabaseAdmin.storage
+                    .from(STORAGE_BUCKET)
+                    .upload(filePath, compressedFile, {
+                        contentType: 'image/webp',
+                        cacheControl: '3600'
+                    });
+
+                if (error) throw error;
+
+                const { data: urlData } = supabaseAdmin.storage
+                    .from(STORAGE_BUCKET)
+                    .getPublicUrl(filePath);
+
+                const publicUrl = urlData.publicUrl;
+                previewImg.src = publicUrl;
+                imageInput.value = publicUrl;
+                
+            } catch (error) {
+                console.error('Error subiendo banner:', error);
+                alert('Error al subir la imagen: ' + error.message);
+            }
+            
+            event.target.value = '';
+        };
 
         // --- TESTIMONIO ---
         function showTestimonialForm() {
