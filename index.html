@@ -552,114 +552,14 @@ section{
     background:#111;
 }
 
-/* =====================================================
-   GALERÍA / SLIDER EN TARJETA DE PRODUCTO
-===================================================== */
-
-.product-image .slider-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+.product-image img{
+    height:100%;
+    object-fit:cover;
+    transition:.7s;
 }
 
-.product-image .slider-track {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.5s ease;
-}
-
-.product-image .slider-track img {
-    min-width: 100%;
-    height: 100%;
-    object-fit: cover;
-    flex-shrink: 0;
-}
-
-/* Indicadores de imágenes (puntos) */
-.product-image .slider-dots {
-    position: absolute;
-    bottom: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 8px;
-    z-index: 5;
-}
-
-.product-image .slider-dots .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.3);
-    border: 1px solid rgba(255,255,255,0.2);
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.product-image .slider-dots .dot.active {
-    background: var(--gold);
-    border-color: var(--gold);
-    transform: scale(1.2);
-}
-
-/* Botones de navegación del slider */
-.product-image .slider-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0,0,0,0.6);
-    color: white;
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 5;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    opacity: 0;
-}
-
-.product-card:hover .slider-btn {
-    opacity: 1;
-}
-
-.product-image .slider-btn:hover {
-    background: var(--gold);
-    color: #111;
-}
-
-.product-image .slider-btn.prev {
-    left: 8px;
-}
-
-.product-image .slider-btn.next {
-    right: 8px;
-}
-
-/* Badge de cantidad de imágenes */
-.product-image .image-counter {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: rgba(0,0,0,0.7);
-    color: #ddd;
-    font-size: 10px;
-    padding: 4px 10px;
-    border-radius: 12px;
-    z-index: 5;
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255,255,255,0.1);
-}
-
-.product-image .image-counter i {
-    margin-right: 4px;
-    font-size: 9px;
+.product-card:hover .product-image img{
+    transform:scale(1.06);
 }
 
 .product-badge{
@@ -1297,7 +1197,7 @@ section{
 
 
 /* =====================================================
-   MODAL
+   MODAL - GALERÍA DE IMÁGENES
 ===================================================== */
 
 .modal{
@@ -1343,114 +1243,65 @@ section{
     color:var(--gold-light);
 }
 
-/* =====================================================
-   GALERÍA EN MODAL - SLIDER
-===================================================== */
-
-.modal-image {
-    position: relative;
-    min-height: 650px;
-    background: #111;
-    overflow: hidden;
+/* --- COLUMNA DE IMAGEN --- */
+.modal-image-col{
+    display:flex;
+    flex-direction:column;
+    background:#0a0a0a;
+    padding:20px;
 }
 
-.modal-image .slider-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    overflow: hidden;
+.modal-image-main{
+    flex:1;
+    min-height:450px;
+    overflow:hidden;
+    background:#111;
+    border-radius:4px;
 }
 
-.modal-image .slider-track {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.5s ease;
+.modal-image-main img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transition:opacity .3s ease;
 }
 
-.modal-image .slider-track img {
-    min-width: 100%;
-    height: 100%;
-    object-fit: cover;
-    flex-shrink: 0;
+/* --- Miniaturas --- */
+.modal-thumbnails{
+    display:flex;
+    gap:10px;
+    margin-top:16px;
+    flex-wrap:wrap;
 }
 
-.modal-image .slider-dots {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 10px;
-    z-index: 10;
+.modal-thumb{
+    width:70px;
+    height:70px;
+    flex-shrink:0;
+    overflow:hidden;
+    border:2px solid transparent;
+    border-radius:4px;
+    cursor:pointer;
+    transition:.3s ease;
+    opacity:.6;
 }
 
-.modal-image .slider-dots .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.3);
-    border: 1px solid rgba(255,255,255,0.2);
-    cursor: pointer;
-    transition: all 0.3s ease;
+.modal-thumb:hover{
+    opacity:.9;
 }
 
-.modal-image .slider-dots .dot.active {
-    background: var(--gold);
-    border-color: var(--gold);
-    transform: scale(1.2);
+.modal-thumb.active{
+    border-color:var(--gold);
+    opacity:1;
 }
 
-.modal-image .slider-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0,0,0,0.6);
-    color: white;
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 10;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
+.modal-thumb img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
 }
 
-.modal-image .slider-btn:hover {
-    background: var(--gold);
-    color: #111;
-}
-
-.modal-image .slider-btn.prev {
-    left: 15px;
-}
-
-.modal-image .slider-btn.next {
-    right: 15px;
-}
-
-.modal-image .image-counter-modal {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(0,0,0,0.7);
-    color: #ddd;
-    font-size: 12px;
-    padding: 6px 14px;
-    border-radius: 20px;
-    z-index: 10;
-    border: 1px solid rgba(255,255,255,0.1);
-    backdrop-filter: blur(4px);
-}
-
-.modal-image .image-counter-modal i {
-    margin-right: 6px;
-}
-
+/* --- COLUMNA INFO --- */
 .modal-info{
     display:flex;
     flex-direction:column;
@@ -1586,9 +1437,9 @@ section{
     .modal-content{
         grid-template-columns:1fr;
     }
-    .modal-image{
-        min-height:400px;
-        max-height:450px;
+    .modal-image-main{
+        min-height:300px;
+        max-height:400px;
     }
     .modal-info{
         padding:45px 30px;
@@ -1596,16 +1447,9 @@ section{
     .modal-title{
         font-size:55px;
     }
-    .modal-image .slider-btn {
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
-    }
-    .modal-image .slider-btn.prev {
-        left: 8px;
-    }
-    .modal-image .slider-btn.next {
-        right: 8px;
+    .modal-thumb{
+        width:55px;
+        height:55px;
     }
 }
 
@@ -1746,17 +1590,16 @@ section{
     .modal-price{
         font-size:20px;
     }
-    .product-image .slider-btn {
-        width: 24px;
-        height: 24px;
-        font-size: 10px;
-        opacity: 1;
+    .modal-image-main{
+        min-height:250px;
+        max-height:320px;
     }
-    .product-image .slider-btn.prev {
-        left: 4px;
+    .modal-thumb{
+        width:45px;
+        height:45px;
     }
-    .product-image .slider-btn.next {
-        right: 4px;
+    .modal-thumbnails{
+        gap:6px;
     }
 }
 
@@ -2750,7 +2593,7 @@ Consultar selección por WhatsApp
 
 
 <!-- =====================================================
-     MODAL
+     MODAL - CON GALERÍA DE IMÁGENES
 ===================================================== -->
 
 <div class="modal" id="productModal">
@@ -2759,34 +2602,22 @@ Consultar selección por WhatsApp
 
 <button class="modal-close" id="modalClose">×</button>
 
-<div class="modal-image" id="modalImageContainer">
+<!-- COLUMNA DE IMAGENES -->
+<div class="modal-image-col">
 
-<div class="slider-container">
+<div class="modal-image-main" id="modalImageMain">
 
-<div class="slider-track" id="modalSliderTrack">
-
-<!-- Las imágenes se agregan dinámicamente con JS -->
+<img id="modalImage" src="" alt="Reloj KN">
 
 </div>
 
-<button class="slider-btn prev" id="modalSliderPrev">
-<i class="fa-solid fa-chevron-left"></i>
-</button>
-
-<button class="slider-btn next" id="modalSliderNext">
-<i class="fa-solid fa-chevron-right"></i>
-</button>
-
-<div class="slider-dots" id="modalSliderDots"></div>
-
-<div class="image-counter-modal" id="modalImageCounter">
-<i class="fa-regular fa-image"></i> <span id="modalImageCount">1/1</span>
+<div class="modal-thumbnails" id="modalThumbnails">
+<!-- Las miniaturas se generan con JavaScript -->
 </div>
 
 </div>
 
-</div>
-
+<!-- COLUMNA DE INFO -->
 <div class="modal-info">
 
 <div class="modal-category" id="modalCategory"></div>
@@ -2896,15 +2727,108 @@ let products = [];
 
 /* =====================================================
    PRODUCTOS FALLBACK (si Supabase falla)
+   Ahora con array de imágenes para demostrar la galería
 ===================================================== */
 
 const fallbackProducts = [
-    { id:1, name:"Aurelius", category:"Clásicos", description:"Una pieza de líneas atemporales y elegancia discreta.", image:"https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=1200&q=90", gallery:[], price:1250000, movement:"Automático", material:"Acero inoxidable", diameter:"40 mm", water:"100 metros" },
-    { id:2, name:"Noir 01", category:"Automáticos", description:"Diseño contemporáneo con un movimiento de alta precisión.", image:"https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=1200&q=90", gallery:[], price:1580000, movement:"Automático", material:"Acero y cristal zafiro", diameter:"42 mm", water:"100 metros" },
-    { id:3, name:"Chronos", category:"Deportivos", description:"Potencia, precisión y carácter para acompañar cada desafío.", image:"https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=90", gallery:[], price:1890000, movement:"Cronógrafo", material:"Acero inoxidable", diameter:"44 mm", water:"200 metros" },
-    { id:4, name:"Imperial", category:"Ediciones especiales", description:"Una edición especial creada para quienes buscan algo diferente.", image:"https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&w=1200&q=90", gallery:[], price:2350000, movement:"Automático", material:"Acero y oro", diameter:"41 mm", water:"100 metros" },
-    { id:5, name:"Heritage", category:"Clásicos", description:"Inspirado en la tradición de la alta relojería.", image:"https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=1200&q=90", gallery:[], price:980000, movement:"Automático", material:"Acero inoxidable", diameter:"39 mm", water:"50 metros" },
-    { id:6, name:"Eclipse", category:"Ediciones especiales", description:"Minimalismo, misterio y una presencia imposible de ignorar.", image:"https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=1200&q=90", gallery:[], price:2100000, movement:"Automático", material:"Titanio", diameter:"43 mm", water:"100 metros" }
+    { 
+        id:1, 
+        name:"Aurelius", 
+        category:"Clásicos", 
+        description:"Una pieza de líneas atemporales y elegancia discreta.", 
+        image:"https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=1200&q=90",
+        images:[
+            "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=1200&q=90",
+            "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=800&q=80"
+        ],
+        price:1250000, 
+        movement:"Automático", 
+        material:"Acero inoxidable", 
+        diameter:"40 mm", 
+        water:"100 metros" 
+    },
+    { 
+        id:2, 
+        name:"Noir 01", 
+        category:"Automáticos", 
+        description:"Diseño contemporáneo con un movimiento de alta precisión.", 
+        image:"https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=1200&q=90",
+        images:[
+            "https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=1200&q=90",
+            "https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=800&q=80"
+        ],
+        price:1580000, 
+        movement:"Automático", 
+        material:"Acero y cristal zafiro", 
+        diameter:"42 mm", 
+        water:"100 metros" 
+    },
+    { 
+        id:3, 
+        name:"Chronos", 
+        category:"Deportivos", 
+        description:"Potencia, precisión y carácter para acompañar cada desafío.", 
+        image:"https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=90",
+        images:[
+            "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=90",
+            "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=800&q=80"
+        ],
+        price:1890000, 
+        movement:"Cronógrafo", 
+        material:"Acero inoxidable", 
+        diameter:"44 mm", 
+        water:"200 metros" 
+    },
+    { 
+        id:4, 
+        name:"Imperial", 
+        category:"Ediciones especiales", 
+        description:"Una edición especial creada para quienes buscan algo diferente.", 
+        image:"https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&w=1200&q=90",
+        images:[
+            "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&w=1200&q=90",
+            "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&w=800&q=80"
+        ],
+        price:2350000, 
+        movement:"Automático", 
+        material:"Acero y oro", 
+        diameter:"41 mm", 
+        water:"100 metros" 
+    },
+    { 
+        id:5, 
+        name:"Heritage", 
+        category:"Clásicos", 
+        description:"Inspirado en la tradición de la alta relojería.", 
+        image:"https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=1200&q=90",
+        images:[
+            "https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=1200&q=90"
+        ],
+        price:980000, 
+        movement:"Automático", 
+        material:"Acero inoxidable", 
+        diameter:"39 mm", 
+        water:"50 metros" 
+    },
+    { 
+        id:6, 
+        name:"Eclipse", 
+        category:"Ediciones especiales", 
+        description:"Minimalismo, misterio y una presencia imposible de ignorar.", 
+        image:"https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=1200&q=90",
+        images:[
+            "https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=1200&q=90",
+            "https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=800&q=80"
+        ],
+        price:2100000, 
+        movement:"Automático", 
+        material:"Titanio", 
+        diameter:"43 mm", 
+        water:"100 metros" 
+    }
 ];
 
 
@@ -2950,8 +2874,6 @@ async function loadProductsFromSupabase() {
 let currentFilter = "Todos";
 let cart = JSON.parse(localStorage.getItem("knCart")) || [];
 let selectedProduct = null;
-// Estado para los sliders de productos
-const productSliders = {};
 
 
 /* =====================================================
@@ -2971,12 +2893,20 @@ const cartFloating = document.getElementById("cartFloating");
 const cartFloatingCount = document.getElementById("cartFloatingCount");
 const footer = document.querySelector(".footer");
 
-// Modal slider elements
-const modalSliderTrack = document.getElementById("modalSliderTrack");
-const modalSliderDots = document.getElementById("modalSliderDots");
-const modalImageCount = document.getElementById("modalImageCount");
-let modalCurrentIndex = 0;
-let modalImages = [];
+// Elementos del modal
+const modalImage = document.getElementById("modalImage");
+const modalThumbnails = document.getElementById("modalThumbnails");
+const modalCategory = document.getElementById("modalCategory");
+const modalTitle = document.getElementById("modalTitle");
+const modalDescription = document.getElementById("modalDescription");
+const modalPrice = document.getElementById("modalPrice");
+const modalMovement = document.getElementById("modalMovement");
+const modalMaterial = document.getElementById("modalMaterial");
+const modalDiameter = document.getElementById("modalDiameter");
+const modalWater = document.getElementById("modalWater");
+const modalAddCart = document.getElementById("modalAddCart");
+const modalWhatsapp = document.getElementById("modalWhatsapp");
+const modalClose = document.getElementById("modalClose");
 
 
 /* =====================================================
@@ -3092,7 +3022,7 @@ function renderCart(){
         const item = document.createElement("div");
         item.className = "cart-item";
         item.innerHTML = `
-            <img src="${product.image}" alt="${product.name}">
+            <img src="${product.image || (product.images && product.images[0])}" alt="${product.name}">
             <div>
                 <h3>${product.name}</h3>
                 <p>${product.category}</p>
@@ -3177,113 +3107,21 @@ document.getElementById("cartWhatsapp").addEventListener("click", () => {
 
 
 /* =====================================================
-   FUNCIONES DEL SLIDER
+   OBTENER ARRAY DE IMÁGENES DEL PRODUCTO
 ===================================================== */
 
-function initSlider(container, images, currentIndex = 0) {
-    if (!container || !images || images.length === 0) return 0;
-    
-    const track = container.querySelector('.slider-track');
-    const dots = container.querySelector('.slider-dots');
-    const prevBtn = container.querySelector('.slider-btn.prev');
-    const nextBtn = container.querySelector('.slider-btn.next');
-    const counter = container.querySelector('.image-counter-modal, .image-counter');
-    
-    if (!track) return 0;
-    
-    // Limpiar track
-    track.innerHTML = '';
-    
-    // Agregar imágenes al track
-    images.forEach((url, index) => {
-        const img = document.createElement('img');
-        img.src = url;
-        img.alt = `Imagen ${index + 1}`;
-        img.loading = 'lazy';
-        img.onerror = function() {
-            this.src = 'https://via.placeholder.com/600/333/666?text=Error';
-        };
-        track.appendChild(img);
-    });
-    
-    // Limpiar y agregar dots
-    if (dots) {
-        dots.innerHTML = '';
-        images.forEach((_, index) => {
-            const dot = document.createElement('span');
-            dot.className = 'dot' + (index === currentIndex ? ' active' : '');
-            dot.addEventListener('click', () => {
-                goToSlide(container, index);
-            });
-            dots.appendChild(dot);
-        });
+function getProductImages(product) {
+    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+        return product.images;
+    } else if (product.image) {
+        return [product.image];
     }
-    
-    // Actualizar contador
-    if (counter) {
-        const countSpan = counter.querySelector('span') || counter;
-        countSpan.textContent = `${currentIndex + 1}/${images.length}`;
-    }
-    
-    // Event listeners
-    if (prevBtn) {
-        prevBtn.onclick = (e) => {
-            e.stopPropagation();
-            const newIndex = currentIndex > 0 ? currentIndex - 1 : images.length - 1;
-            goToSlide(container, newIndex);
-        };
-    }
-    
-    if (nextBtn) {
-        nextBtn.onclick = (e) => {
-            e.stopPropagation();
-            const newIndex = currentIndex < images.length - 1 ? currentIndex + 1 : 0;
-            goToSlide(container, newIndex);
-        };
-    }
-    
-    // Ir al slide inicial
-    goToSlide(container, currentIndex);
-    
-    return currentIndex;
-}
-
-function goToSlide(container, index) {
-    const track = container.querySelector('.slider-track');
-    const dots = container.querySelector('.slider-dots');
-    const counter = container.querySelector('.image-counter-modal, .image-counter');
-    const images = track ? track.querySelectorAll('img') : [];
-    
-    if (!track || images.length === 0) return;
-    
-    // Validar índice
-    const validIndex = Math.max(0, Math.min(index, images.length - 1));
-    
-    // Mover track
-    track.style.transform = `translateX(-${validIndex * 100}%)`;
-    
-    // Actualizar dots
-    if (dots) {
-        dots.querySelectorAll('.dot').forEach((dot, i) => {
-            dot.classList.toggle('active', i === validIndex);
-        });
-    }
-    
-    // Actualizar contador
-    if (counter) {
-        const countSpan = counter.querySelector('span') || counter;
-        countSpan.textContent = `${validIndex + 1}/${images.length}`;
-    }
-    
-    // Actualizar el índice actual
-    if (container.id === 'modalSliderTrack' || container.parentElement?.id === 'modalImageContainer') {
-        modalCurrentIndex = validIndex;
-    }
+    return ["https://placehold.co/600x600/333/999?text=KN"];
 }
 
 
 /* =====================================================
-   RENDER PRODUCTOS CON SLIDER
+   RENDER PRODUCTOS
 ===================================================== */
 
 function renderProducts(){
@@ -3300,50 +3138,13 @@ function renderProducts(){
         return;
     }
     
-    filtered.forEach((product, productIndex) => {
-        // Obtener todas las imágenes: principal + galería
-        const allImages = [product.image, ...(product.gallery || [])].filter(url => url && url.trim() !== '');
-        const hasMultiple = allImages.length > 1;
-        
+    filtered.forEach(product => {
         const card = document.createElement("article");
         card.className = "product-card";
-        card.dataset.productId = product.id;
-        
-        let sliderHtml = '';
-        if (hasMultiple) {
-            sliderHtml = `
-                <div class="slider-container" data-slider="${product.id}">
-                    <div class="slider-track">
-                        ${allImages.map(url => `
-                            <img src="${url}" alt="${product.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/600/333/666?text=Error'">
-                        `).join('')}
-                    </div>
-                    <button class="slider-btn prev" data-slider-prev="${product.id}">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <button class="slider-btn next" data-slider-next="${product.id}">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
-                    <div class="slider-dots">
-                        ${allImages.map((_, idx) => `
-                            <span class="dot ${idx === 0 ? 'active' : ''}" data-slider-dot="${product.id}-${idx}"></span>
-                        `).join('')}
-                    </div>
-                    <div class="image-counter">
-                        <i class="fa-regular fa-image"></i> <span>1/${allImages.length}</span>
-                    </div>
-                </div>
-            `;
-        } else {
-            sliderHtml = `
-                <img src="${allImages[0] || 'https://via.placeholder.com/600/333/666?text=Sin+imagen'}" alt="${product.name}" loading="lazy">
-            `;
-        }
-        
         card.innerHTML = `
             <div class="product-image">
                 <span class="product-badge">${product.category}</span>
-                ${sliderHtml}
+                <img src="${product.image || getProductImages(product)[0]}" alt="${product.name}">
             </div>
             <div class="product-info">
                 <div class="product-category">${product.category}</div>
@@ -3359,75 +3160,17 @@ function renderProducts(){
             </div>
         `;
         
-        // Evento para abrir modal
         card.addEventListener("click", event => {
             if(event.target.closest("[data-cart]")) return;
-            if(event.target.closest(".slider-btn")) return;
-            if(event.target.closest(".slider-dots .dot")) return;
             openModal(product);
         });
         
-        // Evento para agregar al carrito
         card.querySelector("[data-cart]").addEventListener("click", event => {
             event.stopPropagation();
             addToCart(product.id);
         });
         
         productsGrid.appendChild(card);
-        
-        // Inicializar el slider después de renderizar
-        if (hasMultiple) {
-            const sliderContainer = card.querySelector('.slider-container');
-            if (sliderContainer) {
-                const sliderId = `slider-${product.id}`;
-                let currentIndex = 0;
-                
-                // Configurar eventos de navegación
-                const prevBtn = sliderContainer.querySelector(`[data-slider-prev="${product.id}"]`);
-                const nextBtn = sliderContainer.querySelector(`[data-slider-next="${product.id}"]`);
-                const dots = sliderContainer.querySelectorAll(`[data-slider-dot^="${product.id}-"]`);
-                const track = sliderContainer.querySelector('.slider-track');
-                const counter = sliderContainer.querySelector('.image-counter span');
-                const totalImages = allImages.length;
-                
-                function goTo(index) {
-                    currentIndex = Math.max(0, Math.min(index, totalImages - 1));
-                    track.style.transform = `translateX(-${currentIndex * 100}%)`;
-                    
-                    dots.forEach((dot, i) => {
-                        dot.classList.toggle('active', i === currentIndex);
-                    });
-                    
-                    if (counter) {
-                        counter.textContent = `${currentIndex + 1}/${totalImages}`;
-                    }
-                }
-                
-                if (prevBtn) {
-                    prevBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        goTo(currentIndex - 1);
-                    });
-                }
-                
-                if (nextBtn) {
-                    nextBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        goTo(currentIndex + 1);
-                    });
-                }
-                
-                dots.forEach((dot, index) => {
-                    dot.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        goTo(index);
-                    });
-                });
-                
-                // Inicializar en la primera imagen
-                goTo(0);
-            }
-        }
     });
 }
 
@@ -3470,122 +3213,64 @@ searchInput.addEventListener("input", renderProducts);
 
 
 /* =====================================================
-   MODAL CON SLIDER
+   MODAL - CON GALERÍA DE IMÁGENES
 ===================================================== */
 
 function openModal(product){
     selectedProduct = product;
     
-    // Obtener todas las imágenes: principal + galería
-    const allImages = [product.image, ...(product.gallery || [])].filter(url => url && url.trim() !== '');
-    modalImages = allImages;
-    modalCurrentIndex = 0;
+    // Obtener array de imágenes
+    const images = getProductImages(product);
     
-    // Configurar información del producto
-    document.getElementById("modalCategory").textContent = product.category;
-    document.getElementById("modalTitle").textContent = product.name;
-    document.getElementById("modalDescription").textContent = product.description;
-    document.getElementById("modalPrice").innerHTML = `<span class="price-currency">$</span> ${formatPrice(product.price)}`;
-    document.getElementById("modalMovement").textContent = product.movement;
-    document.getElementById("modalMaterial").textContent = product.material;
-    document.getElementById("modalDiameter").textContent = product.diameter;
-    document.getElementById("modalWater").textContent = product.water;
+    // Establecer imagen principal
+    modalImage.src = images[0] || "https://placehold.co/600x600/333/999?text=KN";
+    modalImage.alt = product.name;
     
-    // Configurar slider del modal
-    const modalSliderContainer = document.querySelector('#modalImageContainer .slider-container');
-    if (modalSliderContainer) {
-        const track = modalSliderContainer.querySelector('.slider-track');
-        const dots = modalSliderContainer.querySelector('.slider-dots');
-        const counter = modalSliderContainer.querySelector('.image-counter-modal span');
-        
-        // Limpiar y agregar imágenes
-        track.innerHTML = '';
-        allImages.forEach((url, index) => {
-            const img = document.createElement('img');
-            img.src = url;
-            img.alt = `${product.name} - Imagen ${index + 1}`;
-            img.loading = 'lazy';
-            img.onerror = function() {
-                this.src = 'https://via.placeholder.com/600/333/666?text=Error';
-            };
-            track.appendChild(img);
+    // Generar miniaturas
+    modalThumbnails.innerHTML = "";
+    images.forEach((imgUrl, index) => {
+        const thumb = document.createElement("div");
+        thumb.className = `modal-thumb ${index === 0 ? 'active' : ''}`;
+        thumb.innerHTML = `<img src="${imgUrl}" alt="${product.name} - vista ${index + 1}">`;
+        thumb.addEventListener("click", () => {
+            // Cambiar imagen principal
+            modalImage.src = imgUrl;
+            // Actualizar clase active
+            document.querySelectorAll(".modal-thumb").forEach(t => t.classList.remove("active"));
+            thumb.classList.add("active");
         });
-        
-        // Limpiar y agregar dots
-        dots.innerHTML = '';
-        allImages.forEach((_, index) => {
-            const dot = document.createElement('span');
-            dot.className = 'dot' + (index === 0 ? ' active' : '');
-            dot.addEventListener('click', () => {
-                goToModalSlide(index);
-            });
-            dots.appendChild(dot);
-        });
-        
-        // Actualizar contador
-        if (counter) {
-            counter.textContent = `1/${allImages.length}`;
-        }
-        
-        // Eventos de navegación del modal
-        const prevBtn = document.getElementById('modalSliderPrev');
-        const nextBtn = document.getElementById('modalSliderNext');
-        
-        // Remover event listeners anteriores clonando y reemplazando
-        const newPrevBtn = prevBtn.cloneNode(true);
-        const newNextBtn = nextBtn.cloneNode(true);
-        prevBtn.parentNode.replaceChild(newPrevBtn, prevBtn);
-        nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
-        
-        newPrevBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            goToModalSlide(modalCurrentIndex - 1);
-        });
-        
-        newNextBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            goToModalSlide(modalCurrentIndex + 1);
-        });
-        
-        // Ir al primer slide
-        goToModalSlide(0);
+        modalThumbnails.appendChild(thumb);
+    });
+    
+    // Si solo hay una imagen, ocultar miniaturas o mostrarlas con opacidad reducida
+    if (images.length <= 1) {
+        modalThumbnails.style.opacity = '0.4';
+        modalThumbnails.style.pointerEvents = 'none';
+    } else {
+        modalThumbnails.style.opacity = '1';
+        modalThumbnails.style.pointerEvents = 'auto';
     }
     
-    // Configurar WhatsApp
+    // Información del producto
+    modalCategory.textContent = product.category;
+    modalTitle.textContent = product.name;
+    modalDescription.textContent = product.description;
+    modalPrice.innerHTML = `<span class="price-currency">$</span> ${formatPrice(product.price)}`;
+    modalMovement.textContent = product.movement || '—';
+    modalMaterial.textContent = product.material || '—';
+    modalDiameter.textContent = product.diameter || '—';
+    modalWater.textContent = product.water || '—';
+    
+    // WhatsApp
     const productMessage = `Hola KN, estoy interesado en el reloj ${product.name} (${formatPrice(product.price)}). ¿Podrían confirmarme disponibilidad y precio?`;
-    document.getElementById("modalWhatsapp").addEventListener("click", function(e) {
+    modalWhatsapp.onclick = function(e) {
         e.preventDefault();
         openWhatsApp(productMessage);
-    });
+    };
     
+    // Mostrar modal
     productModal.classList.add("active");
     document.body.classList.add("modal-open");
-}
-
-function goToModalSlide(index) {
-    const total = modalImages.length;
-    if (total === 0) return;
-    
-    modalCurrentIndex = Math.max(0, Math.min(index, total - 1));
-    
-    const container = document.querySelector('#modalImageContainer .slider-container');
-    if (!container) return;
-    
-    const track = container.querySelector('.slider-track');
-    const dots = container.querySelectorAll('.slider-dots .dot');
-    const counter = container.querySelector('.image-counter-modal span');
-    
-    if (track) {
-        track.style.transform = `translateX(-${modalCurrentIndex * 100}%)`;
-    }
-    
-    dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === modalCurrentIndex);
-    });
-    
-    if (counter) {
-        counter.textContent = `${modalCurrentIndex + 1}/${total}`;
-    }
 }
 
 function closeModal(){
@@ -3593,28 +3278,15 @@ function closeModal(){
     document.body.classList.remove("modal-open");
 }
 
-document.getElementById("modalClose").addEventListener("click", closeModal);
+modalClose.addEventListener("click", closeModal);
 productModal.addEventListener("click", event => {
     if(event.target === productModal) closeModal();
 });
 
-document.getElementById("modalAddCart").addEventListener("click", () => {
+modalAddCart.addEventListener("click", () => {
     if(selectedProduct){
         addToCart(selectedProduct.id);
         closeModal();
-    }
-});
-
-// Teclas para navegar el modal
-document.addEventListener("keydown", (event) => {
-    if (productModal.classList.contains('active')) {
-        if (event.key === "ArrowLeft") {
-            goToModalSlide(modalCurrentIndex - 1);
-            event.preventDefault();
-        } else if (event.key === "ArrowRight") {
-            goToModalSlide(modalCurrentIndex + 1);
-            event.preventDefault();
-        }
     }
 });
 
