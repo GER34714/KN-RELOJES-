@@ -752,6 +752,17 @@
             font-size: 18px;
         }
 
+        /* Indicador de cantidad de imágenes en la galería */
+        .gallery-counter {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+        .gallery-counter span {
+            color: var(--gold-light);
+            font-weight: 600;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -1337,12 +1348,17 @@
             }
             let html = `<table><thead><tr><th>ID</th><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Estado</th><th style="text-align:center;">Acciones</th></tr></thead><tbody>`;
             products.forEach(p => {
+                // Mostrar cuántas imágenes tiene en la galería
+                const galleryCount = p.gallery ? p.gallery.length : 0;
                 html += `<tr>
                     <td>#${p.id}</td>
                     <td>
                         <div style="display:flex;align-items:center;gap:10px;">
                             <img src="${p.image}" class="product-image-cell">
-                            <div><strong>${p.name}</strong></div>
+                            <div>
+                                <strong>${p.name}</strong>
+                                ${galleryCount > 0 ? `<span style="font-size:10px;color:var(--gray);display:block;">🖼️ ${galleryCount} imágenes</span>` : ''}
+                            </div>
                         </div>
                     </td>
                     <td>${p.category}</td>
@@ -1821,7 +1837,7 @@
         };
 
         // ============================================
-        // MANEJADOR DE SUBIDA DE GALERÍA CON PREVIEW
+        // MANEJADOR DE SUBIDA DE GALERÍA - AHORA CON GUARDADO CORRECTO
         // ============================================
         window.handleGalleryUpload = async function(event, productId) {
             const files = event.target.files;
@@ -1833,25 +1849,38 @@
             const previewContainer = document.getElementById('galleryPreviewContainer');
             progressDiv.style.display = 'block';
 
-            const gallery = JSON.parse(document.getElementById('productGallery').value || '[]');
+            // Obtener la galería actual del input hidden
+            const galleryInput = document.getElementById('productGallery');
+            let gallery = [];
+            try {
+                gallery = JSON.parse(galleryInput.value || '[]');
+            } catch (e) {
+                gallery = [];
+            }
+
             let uploaded = 0;
 
             // Mostrar preview de las imágenes seleccionadas
+            const previewItems = [];
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const previewItem = document.createElement('div');
                     previewItem.className = 'preview-item';
-                    previewItem.id = `preview-${i}`;
+                    previewItem.id = `preview-${Date.now()}-${i}`;
                     previewItem.innerHTML = `
                         <img src="${e.target.result}" alt="Preview ${i + 1}">
                         <div class="preview-status uploading">⏳ Subiendo...</div>
                     `;
                     previewContainer.appendChild(previewItem);
+                    previewItems.push(previewItem.id);
                 };
                 reader.readAsDataURL(file);
             }
+
+            // Esperar un momento para que se muestren los previews
+            await new Promise(resolve => setTimeout(resolve, 300));
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
@@ -1859,15 +1888,13 @@
                     // Comprimir y convertir a WebP
                     const compressedFile = await compressImage(file);
                     
-                    // Generar nombre único con timestamp
-                    const timestamp = Date.now();
-                    const fileName = `product_${productId || 'new'}_${timestamp}_${i}.webp`;
+                    // Generar nombre único
+                    const timestamp = Date.now() + i;
+                    const fileName = `product_${productId || 'new'}_${timestamp}.webp`;
                     const filePath = `products/${fileName}`;
 
-                    console.log('📤 Subiendo a bucket:', STORAGE_BUCKET);
-                    console.log('📁 Ruta:', filePath);
+                    console.log('📤 Subiendo a galería:', filePath);
 
-                    // USAR SUPABASE ADMIN (bypasea RLS)
                     const { data, error } = await supabaseAdmin.storage
                         .from(STORAGE_BUCKET)
                         .upload(filePath, compressedFile, {
@@ -1875,31 +1902,24 @@
                             cacheControl: '3600'
                         });
 
-                    if (error) {
-                        console.error('❌ Error detallado:', error);
-                        throw error;
-                    }
+                    if (error) throw error;
 
-                    console.log('✅ Subida exitosa:', data);
-
-                    // Obtener URL pública
                     const { data: urlData } = supabaseAdmin.storage
                         .from(STORAGE_BUCKET)
                         .getPublicUrl(filePath);
 
                     const publicUrl = urlData.publicUrl;
-                    console.log('🔗 URL pública:', publicUrl);
-
+                    
+                    // Agregar URL a la galería
                     gallery.push(publicUrl);
                     uploaded++;
 
                     // Actualizar preview
-                    const previewItem = document.getElementById(`preview-${i}`);
-                    if (previewItem) {
-                        previewItem.querySelector('.preview-status').textContent = '✅ Subida';
-                        previewItem.querySelector('.preview-status').className = 'preview-status success';
-                        // Actualizar la imagen con la URL subida
-                        previewItem.querySelector('img').src = publicUrl;
+                    const previewItemsList = previewContainer.querySelectorAll('.preview-item');
+                    if (previewItemsList[i]) {
+                        previewItemsList[i].querySelector('.preview-status').textContent = '✅ Subida';
+                        previewItemsList[i].querySelector('.preview-status').className = 'preview-status success';
+                        previewItemsList[i].querySelector('img').src = publicUrl;
                     }
 
                     const progress = Math.round((uploaded / files.length) * 100);
@@ -1907,21 +1927,21 @@
                     progressText.textContent = `Subiendo ${uploaded}/${files.length}...`;
 
                 } catch (error) {
-                    console.error('❌ Error subiendo imagen:', error);
-                    const previewItem = document.getElementById(`preview-${i}`);
-                    if (previewItem) {
-                        previewItem.querySelector('.preview-status').textContent = '❌ Error';
-                        previewItem.querySelector('.preview-status').className = 'preview-status error';
+                    console.error('❌ Error subiendo imagen a galería:', error);
+                    const previewItemsList = previewContainer.querySelectorAll('.preview-item');
+                    if (previewItemsList[i]) {
+                        previewItemsList[i].querySelector('.preview-status').textContent = '❌ Error';
+                        previewItemsList[i].querySelector('.preview-status').className = 'preview-status error';
                     }
                     alert('Error al subir imagen: ' + error.message);
                 }
             }
 
-            // Guardar la galería actualizada
-            document.getElementById('productGallery').value = JSON.stringify(gallery);
-            progressText.textContent = '✅ ¡Completado!';
-            
-            // Actualizar el grid de galería INMEDIATAMENTE con las URLs
+            // ACTUALIZAR EL INPUT HIDDEN CON LA GALERÍA COMPLETA
+            galleryInput.value = JSON.stringify(gallery);
+            console.log('📸 Galería actualizada:', gallery.length, 'imágenes');
+
+            // ACTUALIZAR LA VISTA DE LA GALERÍA EN EL FORMULARIO
             const grid = document.getElementById('galleryGrid');
             if (grid) {
                 if (gallery.length > 0) {
@@ -1947,9 +1967,18 @@
                 }
             }
 
+            // Actualizar contador
+            const counter = document.getElementById('galleryCounter');
+            if (counter) {
+                counter.innerHTML = `<span>${gallery.length}</span> imágenes en la galería`;
+            }
+
+            progressText.textContent = `✅ ¡${gallery.length} imágenes en la galería!`;
+            
             setTimeout(() => {
                 progressDiv.style.display = 'none';
                 progressBar.style.width = '0%';
+                // Limpiar previews
                 previewContainer.innerHTML = '';
             }, 2000);
 
@@ -1963,7 +1992,13 @@
             const galleryInput = document.getElementById('productGallery');
             if (!galleryInput) return;
             
-            const gallery = JSON.parse(galleryInput.value || '[]');
+            let gallery = [];
+            try {
+                gallery = JSON.parse(galleryInput.value || '[]');
+            } catch (e) {
+                gallery = [];
+            }
+            
             if (index >= 0 && index < gallery.length) {
                 gallery.splice(index, 1);
                 galleryInput.value = JSON.stringify(gallery);
@@ -1991,6 +2026,12 @@
                     } else {
                         grid.innerHTML = `<div class="empty-state" style="padding:20px;"><p style="font-size:12px;color:#666;">No hay imágenes en la galería</p></div>`;
                     }
+                }
+                
+                // Actualizar contador
+                const counter = document.getElementById('galleryCounter');
+                if (counter) {
+                    counter.innerHTML = `<span>${gallery.length}</span> imágenes en la galería`;
                 }
             }
         };
@@ -2076,6 +2117,9 @@
                         <!-- GALERÍA -->
                         <div class="form-group">
                             <label>Galería de Imágenes</label>
+                            <div id="galleryCounter" class="gallery-counter">
+                                <span>${gallery.length}</span> imágenes en la galería
+                            </div>
                             ${galleryHtml}
                             <div class="gallery-upload-area" onclick="document.getElementById('galleryFileInput').click()">
                                 <i class="fa-solid fa-images" style="font-size:24px;display:block;margin-bottom:10px;"></i>
@@ -2154,17 +2198,27 @@
                 document.getElementById('productImagePreview').style.display = 'block';
             }
 
-            // Enviar formulario
+            // Enviar formulario - AHORA CON LA GALERÍA INCLUIDA
             document.getElementById('productForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const galleryData = JSON.parse(document.getElementById('productGallery').value || '[]');
+                
+                // Obtener la galería del input hidden
+                const galleryInput = document.getElementById('productGallery');
+                let galleryData = [];
+                try {
+                    galleryData = JSON.parse(galleryInput.value || '[]');
+                } catch (error) {
+                    galleryData = [];
+                }
+                
+                console.log('📸 Guardando producto con galería de', galleryData.length, 'imágenes');
                 
                 const formData = {
                     name: document.getElementById('productFormName').value.trim(),
                     category: document.getElementById('productFormCategory').value,
                     description: document.getElementById('productFormDescription').value.trim(),
                     image: document.getElementById('productFormImage').value.trim(),
-                    gallery: galleryData,
+                    gallery: galleryData, // ¡AHORA SE GUARDA LA GALERÍA!
                     price: parseInt(document.getElementById('productFormPrice').value),
                     stock: parseInt(document.getElementById('productFormStock').value) || 10,
                     movement: document.getElementById('productFormMovement').value.trim(),
