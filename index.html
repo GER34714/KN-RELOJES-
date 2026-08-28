@@ -1197,7 +1197,7 @@ section{
 
 
 /* =====================================================
-   MODAL
+   MODAL - GALERÍA DE IMÁGENES
 ===================================================== */
 
 .modal{
@@ -1243,15 +1243,65 @@ section{
     color:var(--gold-light);
 }
 
-.modal-image{
-    min-height:650px;
+/* --- COLUMNA DE IMAGEN --- */
+.modal-image-col{
+    display:flex;
+    flex-direction:column;
+    background:#0a0a0a;
+    padding:20px;
 }
 
-.modal-image img{
+.modal-image-main{
+    flex:1;
+    min-height:450px;
+    overflow:hidden;
+    background:#111;
+    border-radius:4px;
+}
+
+.modal-image-main img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transition:opacity .3s ease;
+}
+
+/* --- Miniaturas --- */
+.modal-thumbnails{
+    display:flex;
+    gap:10px;
+    margin-top:16px;
+    flex-wrap:wrap;
+}
+
+.modal-thumb{
+    width:70px;
+    height:70px;
+    flex-shrink:0;
+    overflow:hidden;
+    border:2px solid transparent;
+    border-radius:4px;
+    cursor:pointer;
+    transition:.3s ease;
+    opacity:.6;
+}
+
+.modal-thumb:hover{
+    opacity:.9;
+}
+
+.modal-thumb.active{
+    border-color:var(--gold);
+    opacity:1;
+}
+
+.modal-thumb img{
+    width:100%;
     height:100%;
     object-fit:cover;
 }
 
+/* --- COLUMNA INFO --- */
 .modal-info{
     display:flex;
     flex-direction:column;
@@ -1387,15 +1437,19 @@ section{
     .modal-content{
         grid-template-columns:1fr;
     }
-    .modal-image{
-        min-height:400px;
-        max-height:450px;
+    .modal-image-main{
+        min-height:300px;
+        max-height:400px;
     }
     .modal-info{
         padding:45px 30px;
     }
     .modal-title{
         font-size:55px;
+    }
+    .modal-thumb{
+        width:55px;
+        height:55px;
     }
 }
 
@@ -1535,6 +1589,17 @@ section{
     }
     .modal-price{
         font-size:20px;
+    }
+    .modal-image-main{
+        min-height:250px;
+        max-height:320px;
+    }
+    .modal-thumb{
+        width:45px;
+        height:45px;
+    }
+    .modal-thumbnails{
+        gap:6px;
     }
 }
 
@@ -2528,7 +2593,7 @@ Consultar selección por WhatsApp
 
 
 <!-- =====================================================
-     MODAL
+     MODAL - CON GALERÍA DE IMÁGENES
 ===================================================== -->
 
 <div class="modal" id="productModal">
@@ -2537,12 +2602,22 @@ Consultar selección por WhatsApp
 
 <button class="modal-close" id="modalClose">×</button>
 
-<div class="modal-image">
+<!-- COLUMNA DE IMAGENES -->
+<div class="modal-image-col">
+
+<div class="modal-image-main" id="modalImageMain">
 
 <img id="modalImage" src="" alt="Reloj KN">
 
 </div>
 
+<div class="modal-thumbnails" id="modalThumbnails">
+<!-- Las miniaturas se generan con JavaScript -->
+</div>
+
+</div>
+
+<!-- COLUMNA DE INFO -->
 <div class="modal-info">
 
 <div class="modal-category" id="modalCategory"></div>
@@ -2652,15 +2727,108 @@ let products = [];
 
 /* =====================================================
    PRODUCTOS FALLBACK (si Supabase falla)
+   Ahora con array de imágenes para demostrar la galería
 ===================================================== */
 
 const fallbackProducts = [
-    { id:1, name:"Aurelius", category:"Clásicos", description:"Una pieza de líneas atemporales y elegancia discreta.", image:"https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=1200&q=90", price:1250000, movement:"Automático", material:"Acero inoxidable", diameter:"40 mm", water:"100 metros" },
-    { id:2, name:"Noir 01", category:"Automáticos", description:"Diseño contemporáneo con un movimiento de alta precisión.", image:"https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=1200&q=90", price:1580000, movement:"Automático", material:"Acero y cristal zafiro", diameter:"42 mm", water:"100 metros" },
-    { id:3, name:"Chronos", category:"Deportivos", description:"Potencia, precisión y carácter para acompañar cada desafío.", image:"https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=90", price:1890000, movement:"Cronógrafo", material:"Acero inoxidable", diameter:"44 mm", water:"200 metros" },
-    { id:4, name:"Imperial", category:"Ediciones especiales", description:"Una edición especial creada para quienes buscan algo diferente.", image:"https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&w=1200&q=90", price:2350000, movement:"Automático", material:"Acero y oro", diameter:"41 mm", water:"100 metros" },
-    { id:5, name:"Heritage", category:"Clásicos", description:"Inspirado en la tradición de la alta relojería.", image:"https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=1200&q=90", price:980000, movement:"Automático", material:"Acero inoxidable", diameter:"39 mm", water:"50 metros" },
-    { id:6, name:"Eclipse", category:"Ediciones especiales", description:"Minimalismo, misterio y una presencia imposible de ignorar.", image:"https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=1200&q=90", price:2100000, movement:"Automático", material:"Titanio", diameter:"43 mm", water:"100 metros" }
+    { 
+        id:1, 
+        name:"Aurelius", 
+        category:"Clásicos", 
+        description:"Una pieza de líneas atemporales y elegancia discreta.", 
+        image:"https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=1200&q=90",
+        images:[
+            "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=1200&q=90",
+            "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=800&q=80"
+        ],
+        price:1250000, 
+        movement:"Automático", 
+        material:"Acero inoxidable", 
+        diameter:"40 mm", 
+        water:"100 metros" 
+    },
+    { 
+        id:2, 
+        name:"Noir 01", 
+        category:"Automáticos", 
+        description:"Diseño contemporáneo con un movimiento de alta precisión.", 
+        image:"https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=1200&q=90",
+        images:[
+            "https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=1200&q=90",
+            "https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=800&q=80"
+        ],
+        price:1580000, 
+        movement:"Automático", 
+        material:"Acero y cristal zafiro", 
+        diameter:"42 mm", 
+        water:"100 metros" 
+    },
+    { 
+        id:3, 
+        name:"Chronos", 
+        category:"Deportivos", 
+        description:"Potencia, precisión y carácter para acompañar cada desafío.", 
+        image:"https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=90",
+        images:[
+            "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=90",
+            "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=800&q=80"
+        ],
+        price:1890000, 
+        movement:"Cronógrafo", 
+        material:"Acero inoxidable", 
+        diameter:"44 mm", 
+        water:"200 metros" 
+    },
+    { 
+        id:4, 
+        name:"Imperial", 
+        category:"Ediciones especiales", 
+        description:"Una edición especial creada para quienes buscan algo diferente.", 
+        image:"https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&w=1200&q=90",
+        images:[
+            "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&w=1200&q=90",
+            "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&w=800&q=80"
+        ],
+        price:2350000, 
+        movement:"Automático", 
+        material:"Acero y oro", 
+        diameter:"41 mm", 
+        water:"100 metros" 
+    },
+    { 
+        id:5, 
+        name:"Heritage", 
+        category:"Clásicos", 
+        description:"Inspirado en la tradición de la alta relojería.", 
+        image:"https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=1200&q=90",
+        images:[
+            "https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=1200&q=90"
+        ],
+        price:980000, 
+        movement:"Automático", 
+        material:"Acero inoxidable", 
+        diameter:"39 mm", 
+        water:"50 metros" 
+    },
+    { 
+        id:6, 
+        name:"Eclipse", 
+        category:"Ediciones especiales", 
+        description:"Minimalismo, misterio y una presencia imposible de ignorar.", 
+        image:"https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=1200&q=90",
+        images:[
+            "https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=1200&q=90",
+            "https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=800&q=80"
+        ],
+        price:2100000, 
+        movement:"Automático", 
+        material:"Titanio", 
+        diameter:"43 mm", 
+        water:"100 metros" 
+    }
 ];
 
 
@@ -2724,6 +2892,21 @@ const floatingButtons = document.getElementById("floatingButtons");
 const cartFloating = document.getElementById("cartFloating");
 const cartFloatingCount = document.getElementById("cartFloatingCount");
 const footer = document.querySelector(".footer");
+
+// Elementos del modal
+const modalImage = document.getElementById("modalImage");
+const modalThumbnails = document.getElementById("modalThumbnails");
+const modalCategory = document.getElementById("modalCategory");
+const modalTitle = document.getElementById("modalTitle");
+const modalDescription = document.getElementById("modalDescription");
+const modalPrice = document.getElementById("modalPrice");
+const modalMovement = document.getElementById("modalMovement");
+const modalMaterial = document.getElementById("modalMaterial");
+const modalDiameter = document.getElementById("modalDiameter");
+const modalWater = document.getElementById("modalWater");
+const modalAddCart = document.getElementById("modalAddCart");
+const modalWhatsapp = document.getElementById("modalWhatsapp");
+const modalClose = document.getElementById("modalClose");
 
 
 /* =====================================================
@@ -2839,7 +3022,7 @@ function renderCart(){
         const item = document.createElement("div");
         item.className = "cart-item";
         item.innerHTML = `
-            <img src="${product.image}" alt="${product.name}">
+            <img src="${product.image || (product.images && product.images[0])}" alt="${product.name}">
             <div>
                 <h3>${product.name}</h3>
                 <p>${product.category}</p>
@@ -2924,6 +3107,20 @@ document.getElementById("cartWhatsapp").addEventListener("click", () => {
 
 
 /* =====================================================
+   OBTENER ARRAY DE IMÁGENES DEL PRODUCTO
+===================================================== */
+
+function getProductImages(product) {
+    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+        return product.images;
+    } else if (product.image) {
+        return [product.image];
+    }
+    return ["https://placehold.co/600x600/333/999?text=KN"];
+}
+
+
+/* =====================================================
    RENDER PRODUCTOS
 ===================================================== */
 
@@ -2947,7 +3144,7 @@ function renderProducts(){
         card.innerHTML = `
             <div class="product-image">
                 <span class="product-badge">${product.category}</span>
-                <img src="${product.image}" alt="${product.name}">
+                <img src="${product.image || getProductImages(product)[0]}" alt="${product.name}">
             </div>
             <div class="product-info">
                 <div class="product-category">${product.category}</div>
@@ -3016,27 +3213,62 @@ searchInput.addEventListener("input", renderProducts);
 
 
 /* =====================================================
-   MODAL
+   MODAL - CON GALERÍA DE IMÁGENES
 ===================================================== */
 
 function openModal(product){
     selectedProduct = product;
-    document.getElementById("modalImage").src = product.image;
-    document.getElementById("modalCategory").textContent = product.category;
-    document.getElementById("modalTitle").textContent = product.name;
-    document.getElementById("modalDescription").textContent = product.description;
-    document.getElementById("modalPrice").innerHTML = `<span class="price-currency">$</span> ${formatPrice(product.price)}`;
-    document.getElementById("modalMovement").textContent = product.movement;
-    document.getElementById("modalMaterial").textContent = product.material;
-    document.getElementById("modalDiameter").textContent = product.diameter;
-    document.getElementById("modalWater").textContent = product.water;
     
-    const productMessage = `Hola KN, estoy interesado en el reloj ${product.name} (${formatPrice(product.price)}). ¿Podrían confirmarme disponibilidad y precio?`;
-    document.getElementById("modalWhatsapp").addEventListener("click", function(e) {
-        e.preventDefault();
-        openWhatsApp(productMessage);
+    // Obtener array de imágenes
+    const images = getProductImages(product);
+    
+    // Establecer imagen principal
+    modalImage.src = images[0] || "https://placehold.co/600x600/333/999?text=KN";
+    modalImage.alt = product.name;
+    
+    // Generar miniaturas
+    modalThumbnails.innerHTML = "";
+    images.forEach((imgUrl, index) => {
+        const thumb = document.createElement("div");
+        thumb.className = `modal-thumb ${index === 0 ? 'active' : ''}`;
+        thumb.innerHTML = `<img src="${imgUrl}" alt="${product.name} - vista ${index + 1}">`;
+        thumb.addEventListener("click", () => {
+            // Cambiar imagen principal
+            modalImage.src = imgUrl;
+            // Actualizar clase active
+            document.querySelectorAll(".modal-thumb").forEach(t => t.classList.remove("active"));
+            thumb.classList.add("active");
+        });
+        modalThumbnails.appendChild(thumb);
     });
     
+    // Si solo hay una imagen, ocultar miniaturas o mostrarlas con opacidad reducida
+    if (images.length <= 1) {
+        modalThumbnails.style.opacity = '0.4';
+        modalThumbnails.style.pointerEvents = 'none';
+    } else {
+        modalThumbnails.style.opacity = '1';
+        modalThumbnails.style.pointerEvents = 'auto';
+    }
+    
+    // Información del producto
+    modalCategory.textContent = product.category;
+    modalTitle.textContent = product.name;
+    modalDescription.textContent = product.description;
+    modalPrice.innerHTML = `<span class="price-currency">$</span> ${formatPrice(product.price)}`;
+    modalMovement.textContent = product.movement || '—';
+    modalMaterial.textContent = product.material || '—';
+    modalDiameter.textContent = product.diameter || '—';
+    modalWater.textContent = product.water || '—';
+    
+    // WhatsApp
+    const productMessage = `Hola KN, estoy interesado en el reloj ${product.name} (${formatPrice(product.price)}). ¿Podrían confirmarme disponibilidad y precio?`;
+    modalWhatsapp.onclick = function(e) {
+        e.preventDefault();
+        openWhatsApp(productMessage);
+    };
+    
+    // Mostrar modal
     productModal.classList.add("active");
     document.body.classList.add("modal-open");
 }
@@ -3046,12 +3278,12 @@ function closeModal(){
     document.body.classList.remove("modal-open");
 }
 
-document.getElementById("modalClose").addEventListener("click", closeModal);
+modalClose.addEventListener("click", closeModal);
 productModal.addEventListener("click", event => {
     if(event.target === productModal) closeModal();
 });
 
-document.getElementById("modalAddCart").addEventListener("click", () => {
+modalAddCart.addEventListener("click", () => {
     if(selectedProduct){
         addToCart(selectedProduct.id);
         closeModal();
